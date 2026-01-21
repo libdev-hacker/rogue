@@ -12,8 +12,16 @@ namespace Rogue.Utils
 
         public WebClient(string url)
         {
-            this.Uri = new (url);
-            _client = new (this.Uri);
+            try
+            {
+                this.Uri = new (url);
+                _client = new (this.Uri);
+            }
+            catch (UriFormatException)
+            {
+                this.Uri = new ("about:blank");
+                _client = new (this.Uri);
+            }
         }
 
         private RestRequest PrepareRequest(Uri info, Dictionary<string, string>? headers)
