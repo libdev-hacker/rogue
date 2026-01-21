@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="OpenTK" Version="4.9.4" />
+    <PackageReference Include="RestSharp" Version="113.1.0" />
   </ItemGroup>
 
 </Project>
