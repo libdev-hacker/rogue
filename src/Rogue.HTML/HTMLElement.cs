@@ -1,5 +1,8 @@
 using OpenTK.Mathematics;
 
+using Rogue.Graphics;
+using Rogue.Utils;
+
 namespace Rogue.HTML
 {
     public class HTMLElement
@@ -18,7 +21,11 @@ namespace Rogue.HTML
 
         public List<HTMLElement> Children { get; } = [];
 
+        private int _depth;
+
         protected Box2i Container { get => new (this.Location.X, this.Location.Y-this.Dimensions.Y, this.Location.X+this.Dimensions.X, this.Dimensions.Y); }
+
+        protected DrawingContext Renderer = new ();
 
         public HTMLElement()
         {
@@ -38,6 +45,7 @@ namespace Rogue.HTML
 
         public void AddChild(HTMLElement childNode)
         {
+            childNode._depth = _depth + 1;
             this.Children.Add(childNode);
         }
 
