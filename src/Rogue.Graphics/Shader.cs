@@ -1,0 +1,79 @@
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+
+namespace Rogue.Graphics
+{
+    public static class Shader
+    {
+        public static Matrix4 Orthogonal { get; set; }
+
+        public static int CreateShader(string vertex, string fragment)
+        {
+            int vertexShader = GL.CreateShader(ShaderType.VertexShader);
+            GL.ShaderSource(vertexShader, vertex);
+
+            int fragShader = GL.CreateShader(ShaderType.FragmentShader);
+            GL.ShaderSource(fragShader, fragment);
+
+            // Compiling Vertex Shader
+            GL.CompileShader(vertexShader);
+
+            int isCompiled, isLinked;
+            int handle;
+
+            GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out isCompiled);
+            if (isCompiled == 0)
+            {
+                Shader.PrintError(GL.GetShaderInfoLog(vertexShader));
+            }
+
+            // Compiling Fragment Shader
+            GL.CompileShader(vertexShader);
+
+            GL.GetShader(fragShader, ShaderParameter.CompileStatus, out isCompiled);
+            if (isCompiled == 0)
+            {
+                Shader.PrintError(GL.GetShaderInfoLog(fragShader));
+            }
+
+            handle = GL.CreateProgram();
+
+            GL.AttachShader(handle, vertexShader);
+            GL.AttachShader(handle, fragShader);
+
+            GL.LinkProgram(handle);
+
+            GL.GetProgram(handle, GetProgramParameterName.LinkStatus, out isLinked);
+            if (isLinked == 0)
+            {
+                Shader.PrintError(GL.GetProgramInfoLog(handle));
+            }
+
+            // Cleanup
+            GL.DetachShader(handle, vertexShader);
+            GL.DetachShader(handle, fragShader);
+
+            GL.DeleteShader(vertexShader);
+            GL.DeleteShader(fragShader);
+            
+            return handle;
+        }
+
+        public static int GetAttributeLocation(int shader, string name)
+        {
+            if (GL.IsShader(shader))
+            {
+                return GL.GetAttribLocation(shader, name);
+            }
+
+            return -1;
+        }
+
+        private static void PrintError(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(message);
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+    }
+}

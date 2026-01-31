@@ -1,6 +1,9 @@
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.Common;
+using OpenTK.Mathematics;
+
+using Rogue.Graphics;
 
 namespace Rogue
 {
@@ -12,6 +15,7 @@ namespace Rogue
         public Window(int width, int height): base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize=new (width, height), Title = "Rogue" })
         {
             _tabs = new ();
+            Shader.Orthogonal = Matrix4.CreateOrthographicOffCenter(0.0f, width, 0.0f, height, 0.0f, 1.0f);
         }
 
         protected override void OnLoad()
@@ -28,6 +32,14 @@ namespace Rogue
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
             SwapBuffers();
+        }
+
+        protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
+        {
+            base.OnFramebufferResize(e);
+
+            GL.Viewport(0, 0, e.Width, e.Height);
+            Shader.Orthogonal = Matrix4.CreateOrthographicOffCenter(0.0f, e.Width, 0.0f, e.Height, 0.0f, 1.0f);
         }
         
     }
