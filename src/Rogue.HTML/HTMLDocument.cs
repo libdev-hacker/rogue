@@ -4,7 +4,7 @@ namespace Rogue.HTML
 {
     public class HTMLDocument
     {
-        public HTMLElement? Root { get; private set; }
+        public HTMLElement Root { get; private set; }
 
         private readonly XmlTextReader _reader;
 
@@ -12,6 +12,8 @@ namespace Rogue.HTML
 
         public HTMLDocument(string html)
         {
+            this.Root = _current;
+
             using (StringReader stringReader = new (html))
             {
                 _reader = new (stringReader);
@@ -42,15 +44,9 @@ namespace Rogue.HTML
             element.PopulateAttributes(_reader);
             element.TagName = name;
 
-            if (this.Root is null)
-            {
-                this.Root = _current = element;
-            } else
-            {
-                _current.AddChild(element);
-                element.Parent = _current;
-                _current = element;
-            }
+            _current.AddChild(element);
+            element.Parent = _current;
+            _current = element;
         }
     }
 }

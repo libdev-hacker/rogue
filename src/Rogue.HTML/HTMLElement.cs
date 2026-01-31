@@ -1,7 +1,6 @@
 using OpenTK.Mathematics;
 
 using Rogue.Graphics;
-using Rogue.Utils;
 
 namespace Rogue.HTML
 {
