@@ -4,33 +4,20 @@ namespace Rogue.Graphics
 {
     public class DrawingContext: IDisposable
     {
-        public IList<int>? Textures { get => _textures?.AsReadOnly(); }
+        private int _shader;
 
-        public int Shader { get; private set; }
-
-        private List<int>? _textures;
+        private Dictionary<string, int>? _textures;
 
         private bool _disposed;
 
         ~DrawingContext() => Dispose(false);
 
-        public void AddTexture(int handle)
+        public void AddTexture(string name, int handle)
         {
             if (GL.IsTexture(handle))
             {
                 _textures ??= [];
-                _textures.Add(handle);
-            }
-        }
-
-        public void AddTexture(int handle, int index)
-        {
-            if (GL.IsTexture(handle))
-            {
-                if (_textures is not null)
-                {
-                    _textures[index] = handle;
-                }
+                _textures.Add(name, handle);
             }
         }
 
@@ -38,23 +25,23 @@ namespace Rogue.Graphics
         {
             if (GL.IsShader(handle))
             {
-                this.Shader = handle;
+                _shader = handle;
             }
         }
 
         public void UseShader()
         {
-            if (GL.IsShader(this.Shader))
+            if (GL.IsShader(_shader))
             {
-                GL.UseProgram(this.Shader);
+                GL.UseProgram(_shader);
             }
         }
 
-        public void BindTexture(int index)
+        public void BindTexture(string name)
         {
             if (_textures is not null)
             {
-                GL.BindTexture(TextureTarget.Texture2D, _textures[index]);
+                GL.BindTexture(TextureTarget.Texture2D, _textures[name]);
             }
         }
 
@@ -74,7 +61,7 @@ namespace Rogue.Graphics
                     // Disposing of OpenGL resources
                     if (_textures is not null)
                     {
-                        foreach (int texture in _textures)
+                        foreach (int texture in _textures.Values)
                         {
                             GL.DeleteTexture(texture);
                         }
@@ -82,7 +69,7 @@ namespace Rogue.Graphics
 
                     _textures = null;
 
-                    GL.DeleteProgram(this.Shader);
+                    GL.DeleteProgram(_shader);
 
                     _disposed = true;
                 }
