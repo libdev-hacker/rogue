@@ -8,6 +8,10 @@ namespace Rogue.Graphics
 
         private Dictionary<string, int>? _textures;
 
+        private int _vbo;        
+        
+        private int? _ebo;
+
         private bool _disposed;
 
         ~DrawingContext() => Dispose(false);
@@ -29,6 +33,22 @@ namespace Rogue.Graphics
             }
         }
 
+        public void AddVertexBufferObject(Buffer buffer)
+        {
+            if (GL.IsBuffer(buffer.Handle) && buffer.BufferType == BufferTarget.ArrayBuffer)
+            {
+                _vbo = buffer.Handle;
+            }
+        }
+
+        public void AddElementBufferObject(Buffer buffer)
+        {
+            if (GL.IsBuffer(buffer.Handle) && buffer.BufferType == BufferTarget.ElementArrayBuffer)
+            {
+                _ebo ??= buffer.Handle;
+            }
+        }
+
         public void UseShader()
         {
             if (GL.IsShader(_shader))
@@ -42,6 +62,17 @@ namespace Rogue.Graphics
             if (_textures is not null)
             {
                 GL.BindTexture(TextureTarget.Texture2D, _textures[name]);
+            }
+        }
+
+        public void BindBuffer(BufferTarget target)
+        {
+            if (target == BufferTarget.ArrayBuffer)
+            {
+                GL.BindBuffer(target, _vbo);
+            } else if (target == BufferTarget.ElementArrayBuffer)
+            {
+                if (_ebo is not null) GL.BindBuffer(target, (int)_ebo); // More annoying
             }
         }
 
@@ -68,6 +99,18 @@ namespace Rogue.Graphics
                     }
 
                     _textures = null;
+
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                    GL.DeleteBuffer(_vbo);
+
+                    _vbo = 0;
+
+                    if (_ebo is not null)
+                    {
+                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+                        GL.DeleteBuffer((int)_ebo);
+                        _ebo = 0;
+                    }
 
                     GL.DeleteProgram(_shader);
 
