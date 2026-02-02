@@ -113,6 +113,7 @@ namespace Rogue.Graphics
                     }
 
                     GL.DeleteProgram(_shader);
+                    _shader = 0;
 
                     _disposed = true;
                 }
