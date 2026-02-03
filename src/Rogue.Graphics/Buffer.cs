@@ -21,12 +21,12 @@ namespace Rogue.Graphics
             GL.BufferData(kind, data.Length * sizeof(float), data, hint);
         }
 
-        public Buffer(int[] data, BufferTarget kind, BufferUsageHint hint)
+        public Buffer(BufferUsageHint hint, BufferTarget kind = BufferTarget.ElementArrayBuffer)
         {
             this.Handle = GL.GenBuffer();
             this.BufferType = kind;
 
-            GL.BufferData(kind, data.Length * sizeof(int), data, hint);
+            GL.BufferData(kind, Buffer.Indices.Length * sizeof(uint), Buffer.Indices, hint);
         }
     }
 }
