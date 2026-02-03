@@ -12,7 +12,7 @@ namespace Rogue
         // Title is inherited from GameWindow
         private TabManager _tabs;
         
-        public Window(int width, int height): base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize=new (width, height), Title = "Rogue" })
+        public Window(int width, int height): base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize=new (width, height), Title = "Rogue", Vsync = VSyncMode.On })
         {
             _tabs = new ();
             Shader.Orthogonal = Matrix4.CreateOrthographicOffCenter(0.0f, width, 0.0f, height, 0.0f, 1.0f);
