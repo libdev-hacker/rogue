@@ -6,7 +6,7 @@ namespace Rogue.Graphics
     {
         public int Shader { get; private set; }
 
-        public IDictionary<string, int>? Textures { get => field?.AsReadOnly(); }
+        public IDictionary<string, int> Textures { get => _textures.AsReadOnly(); }
         
         public int Vbo { get; private set; }
         
@@ -16,7 +16,7 @@ namespace Rogue.Graphics
 
         public readonly int Vao = GL.GenVertexArray();
 
-        private Dictionary<string, int>? _textures;
+        private Dictionary<string, int> _textures = [];
 
         private bool _disposed;
 
@@ -26,7 +26,6 @@ namespace Rogue.Graphics
         {
             if (GL.IsTexture(handle))
             {
-                _textures ??= [];
                 _textures.Add(name, handle);
             }
         }
@@ -118,7 +117,7 @@ namespace Rogue.Graphics
                         }
                     }
 
-                    _textures = null;
+                    _textures?.Clear();
 
                     GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
                     GL.DeleteBuffer(this.Vbo);
