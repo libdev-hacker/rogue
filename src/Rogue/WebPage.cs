@@ -23,12 +23,11 @@ namespace Rogue
         {
             if (_client.Uri.AbsoluteUri != "about:blank")
             {
-                // string? pageContent = _client.GetResource("/", null);
                 _html ??= _client.GetResource("/", null);
 
                 if (_html is null) return; // Temporary way of handling a blank page / bad path
 
-                _htmlDoc = new (_html);
+                _htmlDoc ??= new (_html);
 
                 foreach (HTMLElement element in _htmlDoc)
                 {
