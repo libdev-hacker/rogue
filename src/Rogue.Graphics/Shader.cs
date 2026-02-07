@@ -29,12 +29,13 @@ namespace Rogue.Graphics
             }
 
             // Compiling Fragment Shader
-            GL.CompileShader(vertexShader);
+            GL.CompileShader(fragShader);
 
             GL.GetShader(fragShader, ShaderParameter.CompileStatus, out isCompiled);
             if (isCompiled == 0)
             {
                 Shader.PrintError(GL.GetShaderInfoLog(fragShader));
+                return -1;
             }
 
             handle = GL.CreateProgram();
