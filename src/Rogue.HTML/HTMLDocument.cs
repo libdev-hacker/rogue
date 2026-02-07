@@ -1,8 +1,9 @@
 using System.Xml;
+using System.Collections;
 
 namespace Rogue.HTML
 {
-    public class HTMLDocument
+    public class HTMLDocument: IEnumerable<HTMLElement>
     {
         public HTMLElement Root { get; private set; }
 
@@ -48,5 +49,21 @@ namespace Rogue.HTML
             element.Parent = _current;
             _current = element;
         }
+
+        public IEnumerator<HTMLElement> GetEnumerator()
+        {
+            Queue<HTMLElement> elements = new ();
+            elements.Enqueue(this.Root);
+
+            while (elements.Any())
+            {
+                HTMLElement current = elements.Dequeue();
+                current.Children.ForEach(elements.Enqueue);
+                yield return current;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
     }
 }
