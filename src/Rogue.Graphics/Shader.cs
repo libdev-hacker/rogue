@@ -25,6 +25,7 @@ namespace Rogue.Graphics
             if (isCompiled == 0)
             {
                 Shader.PrintError(GL.GetShaderInfoLog(vertexShader));
+                return -1;
             }
 
             // Compiling Fragment Shader
@@ -47,6 +48,7 @@ namespace Rogue.Graphics
             if (isLinked == 0)
             {
                 Shader.PrintError(GL.GetProgramInfoLog(handle));
+                return -1;
             }
 
             // Cleanup
