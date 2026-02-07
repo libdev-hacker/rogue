@@ -23,6 +23,8 @@ namespace Rogue
         {
             base.OnLoad();
 
+            GL.Enable(EnableCap.DepthTest);
+
             GL.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
 
