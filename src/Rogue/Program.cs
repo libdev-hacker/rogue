@@ -5,9 +5,15 @@ namespace Rogue
     {
         public static void Main(string[] args)
         {
-            using (var window = new Window(600, 800))
+            if (args.Length == 0)
             {
-                window.Run();
+                Console.WriteLine("Usage: rogue <url>");
+            } else
+            {
+                using (var window = new Window(600, 800, args[0]))
+                {
+                    window.Run();
+                }
             }
         }
     }

@@ -31,11 +31,8 @@ namespace Rogue.HTML
                 {
                     int renderedText = TextRenderer.CreateText(this, ref vertices);
                     this.Renderer.AddTexture($"{this.GetHashCode()}", renderedText);
-                    hasTexture = true;
-                } else
-                {
-                    hasTexture = true;
                 }
+                hasTexture = true;
             }
 
 
@@ -48,6 +45,7 @@ namespace Rogue.HTML
                 this.Renderer.AddElementBufferObject(ebo);
             }
 
+            this.Renderer.UseShader();
 
             this.Renderer.BindBuffer(BufferTarget.ArrayBuffer);
             this.Renderer.BindVao();

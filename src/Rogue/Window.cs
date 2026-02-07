@@ -12,9 +12,10 @@ namespace Rogue
         // Title is inherited from GameWindow
         private TabManager _tabs;
         
-        public Window(int width, int height): base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize=new (width, height), Title = "Rogue", Vsync = VSyncMode.On })
+        public Window(int width, int height, string url): base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize=new (width, height), Title = "Rogue", Vsync = VSyncMode.On })
         {
             _tabs = new ();
+            _tabs.CreateTab(url);
             Shader.Orthogonal = Matrix4.CreateOrthographicOffCenter(0.0f, width, 0.0f, height, 0.0f, 1.0f);
         }
 
@@ -29,7 +30,10 @@ namespace Rogue
         {
             base.OnRenderFrame(args);
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            WebPage currentPage = _tabs.Current.Value;
+            currentPage.RenderPage();
 
             SwapBuffers();
         }
