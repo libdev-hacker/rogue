@@ -7,9 +7,11 @@ namespace Rogue
     {
         public string Url { get; }
 
-        private HTMLDocument? _html;
+        private HTMLDocument? _htmlDoc;
 
         private WebClient _client;
+
+        private string? _html;
 
         public WebPage(string url = "")
         {
@@ -21,13 +23,14 @@ namespace Rogue
         {
             if (_client.Uri.AbsoluteUri != "about:blank")
             {
-                string? pageContent = _client.GetResource("/", null);
+                // string? pageContent = _client.GetResource("/", null);
+                _html ??= _client.GetResource("/", null);
 
-                if (pageContent is null) return; // Temporary way of handling a blank page / bad path
+                if (_html is null) return; // Temporary way of handling a blank page / bad path
 
-                _html = new (pageContent);
+                _htmlDoc = new (_html);
 
-                foreach (HTMLElement element in _html)
+                foreach (HTMLElement element in _htmlDoc)
                 {
                     element.Draw();
                 }
