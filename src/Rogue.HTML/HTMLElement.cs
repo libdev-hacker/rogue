@@ -20,7 +20,7 @@ namespace Rogue.HTML
 
         public List<HTMLElement> Children { get; } = [];
 
-        protected int Depth;
+        protected float Depth;
 
         protected Box2i Container { get => new (this.Location.X, this.Location.Y-this.Dimensions.Y, this.Location.X+this.Dimensions.X, this.Dimensions.Y); }
 
@@ -44,7 +44,7 @@ namespace Rogue.HTML
 
         public void AddChild(HTMLElement childNode)
         {
-            childNode.Depth = this.Depth + 1;
+            childNode.Depth = this.Depth + 0.01f;
             this.Children.Add(childNode);
         }
 
