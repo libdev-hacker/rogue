@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.Common;
@@ -16,7 +18,7 @@ namespace Rogue
         {
             _tabs = new ();
             _tabs.CreateTab(url);
-            Shader.Orthogonal = Matrix4.CreateOrthographicOffCenter(0.0f, width, 0.0f, height, 0.0f, 1.0f);
+            Shader.Orthogonal = Matrix4.CreateOrthographic(width, height, -1.0f, 1.0f);
         }
 
         protected override void OnLoad()
@@ -45,7 +47,15 @@ namespace Rogue
             base.OnFramebufferResize(e);
 
             GL.Viewport(0, 0, e.Width, e.Height);
-            Shader.Orthogonal = Matrix4.CreateOrthographicOffCenter(0.0f, e.Width, 0.0f, e.Height, 0.0f, 1.0f);
+            Shader.Orthogonal = Matrix4.CreateOrthographic(e.Width, e.Height, -1.0f, 1.0f);
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+
+            WebPage currentPage = _tabs.Current.Value;
+            currentPage.CleanUp();
         }
         
     }
