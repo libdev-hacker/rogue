@@ -1,6 +1,7 @@
 using OpenTK.Graphics.OpenGL4;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace Rogue.Graphics
 {
@@ -9,50 +10,59 @@ namespace Rogue.Graphics
         public static int CreateTexture(Image<Rgba32> image, ref float[] coords)
         {
             int handle = GL.GenTexture();
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, handle);
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, 0);
+
+            image.Mutate(x => x.Flip(FlipMode.Vertical));
 
             // Loading texture into GPU
             image.ProcessPixelRows(image =>
             {
-                int width = image.Width * 4;
-                byte[] pixels = new byte[width];
+                List<byte> pixels = [];
                 for (int y = 0; y < image.Height; y++)
                 {
                     Span<Rgba32> row = image.GetRowSpan(y);
-                    int counter = 0;
-                    for (int i = 0; i < width; i++)
+                    for (int i = 0; i < image.Width; i++)
                     {
-                        pixels[counter++] = row[i].R;
-                        pixels[counter++] = row[i].G;
-                        pixels[counter++] = row[i].B;
-                        pixels[counter++] = row[i].A;
+                        pixels.Add(row[i].R);
+                        pixels.Add(row[i].G);
+                        pixels.Add(row[i].B);
+                        pixels.Add(row[i].A);
                     }
-                    GL.TexSubImage2D(TextureTarget.Texture2D, 0, 0, y, image.Width, 1, PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
+                    GL.TexSubImage2D(TextureTarget.Texture2D, 0, 0, y, image.Width, 1, PixelFormat.Rgba, PixelType.UnsignedByte, pixels.ToArray());
+                    pixels.Clear();
                 }
             });
 
             SetParameters();
 
             // Adding texture coords
-            int length = coords.Length + (2 * 4); // length of coords + (2 new coords * 4 points)
-            int coordLength = 3;
-            float[] newCoords = new float[length];
-            for (int i = 0; i < length / 5; i += 5)
+            var existingCoords = new List<KeyValuePair<ArraySegment<float>, float[]>>();
+            const int offset = 3;
+            for (int i = 0; i < coords.Length; i += offset)
             {
-                // Variable initialisation
-                int xCoord = i < length / 2 ? 1 : 0;
-                int yCoord = i == 0 || i == length * 2 / 3 ? 1 : 0;
-                int textCoordOffset = i+coordLength;
+                float xCoord = i == 0 | i == 3 ? 1.0f : 0.0f;
+                float yCoord = i == 0 | i == 9 ? 1.0f : 0.0f;
 
-                // Copying element coordinates over to new array
-                var elementCoords = new ArraySegment<float>(coords, i, coordLength);
-                newCoords = newCoords.Concat(elementCoords).ToArray();
-
-                // Appending texture coordinates
-                newCoords[textCoordOffset] = xCoord;
-                newCoords[textCoordOffset+1] = yCoord;
+                var coord = new ArraySegment<float>(coords, i, offset);
+                float[] textCoord = [xCoord, yCoord];
+                existingCoords.Add(new (coord, textCoord));
             }
 
-            coords = newCoords;
+            List<float> newCoords = [];
+            foreach (var coord in existingCoords)
+            {
+                foreach (float position in coord.Key)
+                {
+                    newCoords.Add(position);
+                }
+                newCoords.AddRange(coord.Value);
+            }
+
+            coords = newCoords.ToArray();
+            GL.BindTexture(TextureTarget.Texture2D, 0);
 
             return handle;
         }
