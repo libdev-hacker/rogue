@@ -64,12 +64,12 @@ namespace Rogue.Graphics
 
         public static int GetAttributeLocation(int shader, string name)
         {
-            if (GL.IsShader(shader))
-            {
-                return GL.GetAttribLocation(shader, name);
-            }
+            return GL.GetAttribLocation(shader, name);
+        }
 
-            return -1;
+        public static int GetUniformLocation(int shader, string name)
+        {
+            return GL.GetUniformLocation(shader, name);
         }
 
         private static void PrintError(string message)
