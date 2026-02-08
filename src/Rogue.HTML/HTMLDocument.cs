@@ -7,7 +7,7 @@ namespace Rogue.HTML
     {
         public HTMLElement Root { get; private set; }
 
-        private readonly XmlTextReader _reader;
+        private readonly XmlReader _reader;
 
         private HTMLElement _current = new ();
 
@@ -17,24 +17,24 @@ namespace Rogue.HTML
 
             using (StringReader stringReader = new (html))
             {
-                _reader = new (stringReader);
-
-                while (_reader.Read())
+                using (_reader = XmlReader.Create(stringReader))
                 {
-                    switch (_reader.NodeType)
+                    while (_reader.Read())
                     {
-                        case XmlNodeType.Element:
-                            ParseElement();
-                            break;
-                        case XmlNodeType.Text:
-                            if (_current is HTMLTextElement) _current.AddText(_reader.Value);
-                            break;
-                        case XmlNodeType.EndElement:
-                            if (!_current.IsRoot) _current = _current.Parent ?? new (); // Annoying
-                            break;
+                        switch (_reader.NodeType)
+                        {
+                            case XmlNodeType.Element:
+                                ParseElement();
+                                break;
+                            case XmlNodeType.Text:
+                                if (_current is HTMLTextElement) _current.AddText(_reader.Value);
+                                break;
+                            case XmlNodeType.EndElement:
+                                if (!_current.IsRoot) _current = _current.Parent ?? new (); // Annoying
+                                break;
+                        }
                     }
                 }
-                _reader.Dispose();
             }
         }
 

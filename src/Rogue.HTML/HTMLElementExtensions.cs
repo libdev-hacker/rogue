@@ -5,7 +5,7 @@ namespace Rogue.HTML
 {
     public static class HTMLElementExtensions
     {
-        public static void PopulateAttributes(this HTMLElement element, XmlTextReader reader)
+        public static void PopulateAttributes(this HTMLElement element, XmlReader reader)
         {
             if (reader.HasAttributes)
             {
