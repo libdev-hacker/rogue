@@ -36,6 +36,17 @@ namespace Rogue
             }
         }
 
+        public void CleanUp()
+        {
+            if (_htmlDoc is not null)
+            {
+                foreach (HTMLElement element in _htmlDoc)
+                {
+                    element.EndDraw();
+                }
+            }
+        }
+
         public static implicit operator LinkedListNode<WebPage>(WebPage page) => new (page);
     }
 }
