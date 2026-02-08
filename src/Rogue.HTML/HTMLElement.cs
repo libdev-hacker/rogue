@@ -22,7 +22,7 @@ namespace Rogue.HTML
 
         protected float Depth;
 
-        protected Box2i Container { get => new (this.Location.X, this.Location.Y-this.Dimensions.Y, this.Location.X+this.Dimensions.X, this.Dimensions.Y); }
+        protected Box2i Container { get => new (this.Location.X, this.Location.Y-this.Dimensions.Y, this.Location.X+this.Dimensions.X, this.Location.Y); }
 
         protected DrawingContext Renderer = new ();
 
@@ -51,6 +51,11 @@ namespace Rogue.HTML
         public void AddAttribute(string name, string value)
         {
             this.Attributes.Add(name, value);
+        }
+
+        public void EndDraw()
+        {
+            this.Renderer.Dispose();
         }
     }
 }
