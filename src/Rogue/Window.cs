@@ -12,11 +12,12 @@ namespace Rogue
         // Title is inherited from GameWindow
         private TabManager _tabs;
         
-        public Window(int width, int height, string url): base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize=new (width, height), Title = "Rogue", Vsync = VSyncMode.On })
+        public Window(int width, int height, string url): base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize=Window.FixDimensions(width, height), Title = "Rogue", Vsync = VSyncMode.On })
         {
             _tabs = new ();
             _tabs.CreateTab(url);
-            Shader.Orthogonal = Matrix4.CreateOrthographic(width, height, -1.0f, 1.0f);
+            Vector2i dimensions = Window.FixDimensions(width, height);
+            Shader.Orthogonal = Matrix4.CreateOrthographic(dimensions.X, dimensions.Y, -1.0f, 1.0f);
         }
 
         protected override void OnLoad()
@@ -44,8 +45,10 @@ namespace Rogue
         {
             base.OnFramebufferResize(e);
 
-            GL.Viewport(0, 0, e.Width, e.Height);
-            Shader.Orthogonal = Matrix4.CreateOrthographic(e.Width, e.Height, -1.0f, 1.0f);
+            Vector2i dimensions = Window.FixDimensions(e.Width, e.Height);
+
+            GL.Viewport(0, 0, dimensions.X, dimensions.Y); // Consider removing to keep elements static
+            Shader.Orthogonal = Matrix4.CreateOrthographic(dimensions.X, dimensions.Y, -1.0f, 1.0f);
         }
 
         protected override void OnUnload()
@@ -54,6 +57,14 @@ namespace Rogue
 
             WebPage currentPage = _tabs.Current.Value;
             currentPage.CleanUp();
+        }
+
+        private static Vector2i FixDimensions(int width, int height)
+        {
+            int newWidth = width % 2 == 0 ? width : width - 1;
+            int newHeight = height % 2 == 0 ? height : height - 1;
+
+            return new (newWidth, newHeight);
         }
     }
 }
