@@ -1,5 +1,3 @@
-using System.ComponentModel;
-
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.Common;
@@ -50,13 +48,12 @@ namespace Rogue
             Shader.Orthogonal = Matrix4.CreateOrthographic(e.Width, e.Height, -1.0f, 1.0f);
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override void OnUnload()
         {
-            base.OnClosing(e);
+            base.OnUnload();
 
             WebPage currentPage = _tabs.Current.Value;
             currentPage.CleanUp();
         }
-        
     }
 }
