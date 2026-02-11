@@ -17,7 +17,7 @@ namespace Rogue
             _tabs = new ();
             _tabs.CreateTab(url);
             Vector2i dimensions = Window.FixDimensions(width, height);
-            Shader.Orthogonal = Matrix4.CreateOrthographic(dimensions.X, dimensions.Y, -1.0f, 1.0f);
+            Shader.Orthogonal = Matrix4.CreateOrthographicOffCenter(0, dimensions.X, dimensions.Y, 0, -1.0f, 1.0f);
         }
 
         protected override void OnLoad()
@@ -48,7 +48,7 @@ namespace Rogue
             Vector2i dimensions = Window.FixDimensions(e.Width, e.Height);
 
             GL.Viewport(0, 0, dimensions.X, dimensions.Y); // Consider removing to keep elements static
-            Shader.Orthogonal = Matrix4.CreateOrthographic(dimensions.X, dimensions.Y, -1.0f, 1.0f);
+            Shader.Orthogonal = Matrix4.CreateOrthographicOffCenter(0, dimensions.X, dimensions.Y, 0, -1.0f, 1.0f);
         }
 
         protected override void OnUnload()
