@@ -5,7 +5,7 @@ namespace Rogue.Graphics
 {
     public static class Shader
     {
-        public static Matrix4 Orthogonal { get; set; }
+        public static Matrix4 Orthogonal { get => field.Transposed(); set; }
 
         public static int CreateShader(string vertex, string fragment)
         {
