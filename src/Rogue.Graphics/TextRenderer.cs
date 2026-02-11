@@ -13,13 +13,15 @@ namespace Rogue.Graphics
         public static int CreateText(HTMLTextElement element, ref float[] coords)
         {
             int handle;
+            float[] newCoords = coords;
 
             using (Image<Rgba32> image = new (element.Dimensions.X, element.Dimensions.Y))
             {
-                bool hasFont = SystemFonts.TryGet("Arial", out FontFamily fontFamily); // Temporary default font
+                bool hasFont = SystemFonts.TryGet("Segoe UI", out FontFamily fontFamily); // Temporary default font
                 if (!hasFont) Console.WriteLine("Font not found!"); // Temporary error handling / test
 
-                Font font = fontFamily.CreateFont(24);
+                const float defaultSize = 12.0f;
+                Font font = SystemFonts.CreateFont("Segoe UI", defaultSize);
 
                 RichTextOptions opts = new (font)
                 {
@@ -29,10 +31,12 @@ namespace Rogue.Graphics
 
                 FontRectangle dimensions = TextMeasurer.MeasureSize(element.Text, opts);
 
-                image.Mutate(i => i.DrawText(opts, element.Text, new SolidBrush(Color.Black)));
+                image.Mutate(i => i.DrawText(opts, element.Text, new SolidBrush(Color.Black)).BackgroundColor(Color.White));
 
-                handle = Texture.CreateTexture(image, ref coords);
+                handle = Texture.CreateTexture(image, ref newCoords);
             }
+
+            coords = newCoords;
             
             return handle;
         }
