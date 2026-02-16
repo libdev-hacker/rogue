@@ -5,19 +5,19 @@ namespace Rogue.HTML
 {
     public class HTMLDocument: IEnumerable<HTMLElement>
     {
-        public HTMLElement Root { get; private set; }
+        public HTMLElement? Root { get; private set; }
 
-        private readonly XmlReader _reader;
+        public bool Loaded { get; private set; }
+
+        private XmlReader? _reader;
 
         private HTMLElement _current = new ();
 
-        public HTMLDocument(string html)
+        public void ParseDocument(string html)
         {
-            this.Root = _current;
-
             using (StringReader stringReader = new (html))
             {
-                using (_reader = XmlReader.Create(stringReader))
+                using (_reader ??= XmlReader.Create(stringReader))
                 {
                     while (_reader.Read())
                     {
@@ -36,24 +36,42 @@ namespace Rogue.HTML
                     }
                 }
             }
+            this.Loaded = true;
         }
 
         private void ParseElement()
         {
-            string name = _reader.Name;
-            HTMLElement element = HTMLTextElement.SupportedTags.Contains(name) ? new HTMLTextElement() : new ();
-            element.PopulateAttributes(_reader);
-            element.TagName = name;
+            if (_reader is not null)
+            {
+                string name = _reader.Name;
+                HTMLElement element = HTMLTextElement.SupportedTags.Contains(name) ? new HTMLTextElement() : new ();
+                element.PopulateAttributes(_reader);
+                element.TagName = name;
 
-            _current.AddChild(element);
-            element.Parent = _current;
-            _current = element;
+                if (_current.TagName == "")
+                {
+                    _current = element;
+                    this.Root ??= _current;
+                } else
+                {
+                    _current.AddChild(element);
+                    element.Parent = _current;
+                    _current = element;
+                }
+            }
         }
 
         public IEnumerator<HTMLElement> GetEnumerator()
         {
             Queue<HTMLElement> elements = new ();
-            elements.Enqueue(this.Root);
+            
+            if (this.Root is null)
+            {
+                yield break;
+            } else
+            {
+                elements.Enqueue(this.Root);
+            }
 
             while (elements.Any())
             {
