@@ -4,7 +4,7 @@ namespace Rogue.Graphics
 {
     public class DrawingContext: IDisposable
     {
-        public int Shader { get; private set; }
+        public int Shader { get; private set; } = -1;
 
         public IDictionary<string, int> Textures { get => _textures.AsReadOnly(); }
         
@@ -12,11 +12,15 @@ namespace Rogue.Graphics
         
         public int? Ebo { get; private set; }
 
+        public ref float[]? Coords { get => ref _coords; }
+
         public bool IsBuffersSet { get => !(this.Vbo == default || this.Ebo == default); }
 
         public readonly int Vao = GL.GenVertexArray();
 
         private Dictionary<string, int> _textures = [];
+
+        private float[]? _coords;
 
         private bool _disposed;
 
@@ -24,23 +28,22 @@ namespace Rogue.Graphics
 
         public void AddTexture(string name, int handle)
         {
-            if (GL.IsTexture(handle))
-            {
-                _textures.Add(name, handle);
-            }
+            _textures.Add(name, handle);
         }
 
         public void AddShader(int handle)
         {
-            if (GL.IsShader(handle))
-            {
-                this.Shader = handle;
-            }
+            this.Shader = handle;
+        }
+
+        public void AddCoordinates(float[] coords)
+        {
+            _coords ??= coords;
         }
 
         public void AddVertexBufferObject(Buffer buffer)
         {
-            if (GL.IsBuffer(buffer.Handle) && buffer.BufferType == BufferTarget.ArrayBuffer)
+            if (buffer.BufferType == BufferTarget.ArrayBuffer)
             {
                 this.Vbo = buffer.Handle;
             }
@@ -48,7 +51,7 @@ namespace Rogue.Graphics
 
         public void AddElementBufferObject(Buffer buffer)
         {
-            if (GL.IsBuffer(buffer.Handle) && buffer.BufferType == BufferTarget.ElementArrayBuffer)
+            if (buffer.BufferType == BufferTarget.ElementArrayBuffer)
             {
                 this.Ebo ??= buffer.Handle;
             }
@@ -62,37 +65,37 @@ namespace Rogue.Graphics
 
         public void UseShader()
         {
-            if (GL.IsShader(this.Shader))
-            {
-                GL.UseProgram(this.Shader);
-            }
+           GL.UseProgram(this.Shader);
         }
 
         public void BindTexture(string name)
         {
             if (_textures is not null)
             {
+                GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, _textures[name]);
             }
         }
 
         public void BindBuffer(BufferTarget target)
         {
-            if (target == BufferTarget.ArrayBuffer)
+            if (target == BufferTarget.ArrayBuffer && _coords is not null)
             {
                 GL.BindBuffer(target, this.Vbo);
+                GL.BufferData(target, _coords.Length * sizeof(float), _coords, BufferUsageHint.DynamicDraw);
             } else if (target == BufferTarget.ElementArrayBuffer)
             {
-                if (this.Ebo is not null) GL.BindBuffer(target, (int)this.Ebo); // More annoying
+                if (this.Ebo is not null)
+                {
+                    GL.BindBuffer(target, (int)this.Ebo); // More annoying
+                    GL.BufferData(target, Buffer.Indices.Length * sizeof(uint), Buffer.Indices, BufferUsageHint.StaticDraw);
+                }
             }
         }
 
         public void BindVao()
         {
-            if (GL.IsVertexArray(this.Vao))
-            {
-                GL.BindVertexArray(this.Vao);
-            }
+            GL.BindVertexArray(this.Vao);
         }
 
         public void Dispose()
@@ -109,6 +112,9 @@ namespace Rogue.Graphics
                 if (disposing)
                 {
                     // Disposing of OpenGL resources
+                    GL.Finish();
+                    GL.DeleteBuffer(this.Vao);
+
                     if (_textures is not null)
                     {
                         foreach (int texture in _textures.Values)
@@ -133,6 +139,8 @@ namespace Rogue.Graphics
 
                     GL.DeleteProgram(this.Shader);
                     this.Shader = 0;
+
+                    _coords = null;
 
                     _disposed = true;
                 }
