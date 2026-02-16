@@ -1,7 +1,6 @@
 using OpenTK.Graphics.OpenGL4;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 
 namespace Rogue.Graphics
 {
@@ -14,8 +13,6 @@ namespace Rogue.Graphics
             GL.BindTexture(TextureTarget.Texture2D, handle);
 
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, 0);
-
-            image.Mutate(x => x.Flip(FlipMode.Vertical));
 
             // Loading texture into GPU
             image.ProcessPixelRows(image =>
