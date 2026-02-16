@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Xml;
 
 namespace Rogue.HTML
