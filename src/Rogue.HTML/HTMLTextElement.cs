@@ -1,6 +1,8 @@
 using System.Text;
 
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+
 using Rogue.Graphics;
 using Rogue.Utils;
 using GraphicsBuffer = Rogue.Graphics.Buffer;
@@ -9,7 +11,7 @@ namespace Rogue.HTML
 {
     public class HTMLTextElement: HTMLElement
     {
-        private StringBuilder _text = new ();
+        private readonly StringBuilder _text = new ();
 
         public string Text { get => _text.ToString(); }
 
@@ -19,46 +21,79 @@ namespace Rogue.HTML
 
         public override void Draw()
         {
-            float[] vertices = this.Container.GetCoords(this.Depth);
+            if (this.Dimensions == Vector2i.Zero) this.Dimensions = TextRenderer.MeasureText(this.Text);
+
+            this.Renderer.AddCoordinates(this.Container.GetCoords(this.Depth));
 
             string id = Convert.ToString(this.GetHashCode());
 
-            bool hasTexture = false;
-
-            if (this.Renderer.Textures is not null)
+            if (this.Renderer.Shader == -1)
             {
-                if (!this.Renderer.Textures.ContainsKey(id))
-                {
-                    int renderedText = TextRenderer.CreateText(this, ref vertices);
-                    this.Renderer.AddTexture($"{this.GetHashCode()}", renderedText);
-                }
-                hasTexture = true;
+                const string vertexShader = @"
+                    #version 420 core
+
+                    layout(location = 0) in vec3 position;
+                    layout(location = 1) in vec2 texCoords;
+
+                    out vec2 texPoints;
+
+                    uniform mat4 transform;
+
+                    void main() {
+                        gl_Position = transform * vec4(position, 1.0);
+                        texPoints = texCoords;
+                    }
+                ";
+
+                const string fragShader = @"
+                    #version 420 core
+
+                    out vec4 colour;
+
+                    in vec2 texPoints;
+
+                    uniform sampler2D texSampler;
+
+                    void main() {
+                        colour = texture(texSampler, texPoints);
+                    }
+                ";
+
+                int shader = Shader.CreateShader(vertexShader, fragShader);
+                if (shader == -1) return;
+                this.Renderer.AddShader(shader);
             }
 
 
+            if (!this.Renderer.Textures.ContainsKey(id) && this.Renderer.Coords is not null)
+            {
+                int renderedText = TextRenderer.CreateText(this, ref this.Renderer.Coords);
+                this.Renderer.AddTexture(id, renderedText);
+            }
+
             if (!this.Renderer.IsBuffersSet)
             {
-                GraphicsBuffer vbo = new (vertices, BufferTarget.ArrayBuffer, BufferUsageHint.DynamicDraw);
-                GraphicsBuffer ebo = new (BufferUsageHint.StaticDraw);
+                GraphicsBuffer vbo = new (BufferTarget.ArrayBuffer);
+                GraphicsBuffer ebo = new (BufferTarget.ElementArrayBuffer);
                 
                 this.Renderer.AddVertexBufferObject(vbo);
                 this.Renderer.AddElementBufferObject(ebo);
             }
 
             this.Renderer.UseShader();
+            var matrix = Shader.Orthogonal;
+            int loc = Shader.GetUniformLocation(this.Renderer.Shader, "transform");
+            if (loc != -1) GL.UniformMatrix4(loc, true, ref matrix);
 
-            this.Renderer.BindBuffer(BufferTarget.ArrayBuffer);
             this.Renderer.BindVao();
+            this.Renderer.BindBuffer(BufferTarget.ArrayBuffer);
             this.Renderer.BindBuffer(BufferTarget.ElementArrayBuffer);
 
             this.Renderer.AddAttributePointer(0, 3, VertexAttribPointerType.Float, 5 * sizeof(float));
-            if (hasTexture)
-            {
-                int textureLocation = Shader.GetAttributeLocation(this.Renderer.Shader, "texCoords");
-                this.Renderer.AddAttributePointer(textureLocation, 2, VertexAttribPointerType.Float, 5 * sizeof(float), 3 * sizeof(float));
-            }
+            this.Renderer.BindTexture(id);
+            this.Renderer.AddAttributePointer(1, 2, VertexAttribPointerType.Float, 5 * sizeof(float), 3 * sizeof(float));
 
-            GL.DrawElements(BeginMode.Triangles, 6, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(BeginMode.Triangles, GraphicsBuffer.Indices.Length, DrawElementsType.UnsignedInt, 0);
         }
     }
 }
