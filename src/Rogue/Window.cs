@@ -10,14 +10,26 @@ namespace Rogue
     public class Window: GameWindow
     {
         // Title is inherited from GameWindow
+
+        public static float HorizontalDpi { get; private set; }
+
         private TabManager _tabs;
         
-        public Window(int width, int height, string url): base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize=Window.FixDimensions(width, height), Title = "Rogue", Vsync = VSyncMode.On })
+        public Window(int width, int height, string url): base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize=Window.FixDimensions(width, height), Title = "Rogue", Vsync = VSyncMode.On, WindowBorder = WindowBorder.Fixed })
         {
             _tabs = new ();
             _tabs.CreateTab(url);
+
             Vector2i dimensions = Window.FixDimensions(width, height);
-            Shader.Orthogonal = Matrix4.CreateOrthographicOffCenter(0, dimensions.X, dimensions.Y, 0, -1.0f, 1.0f);
+            Shader.Orthogonal = Matrix4.CreateOrthographicOffCenter(0, dimensions.X, dimensions.Y, 0, -1, 1);
+
+            if (this.TryGetCurrentMonitorDpi(out float dpi, out _))
+            {
+                Window.HorizontalDpi = dpi;
+            } else
+            {
+                Console.WriteLine("DPI not found!");
+            }
         }
 
         protected override void OnLoad()
@@ -39,16 +51,6 @@ namespace Rogue
             currentPage.RenderPage();
 
             SwapBuffers();
-        }
-
-        protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
-        {
-            base.OnFramebufferResize(e);
-
-            Vector2i dimensions = Window.FixDimensions(e.Width, e.Height);
-
-            GL.Viewport(0, 0, dimensions.X, dimensions.Y); // Consider removing to keep elements static
-            Shader.Orthogonal = Matrix4.CreateOrthographicOffCenter(0, dimensions.X, dimensions.Y, 0, -1.0f, 1.0f);
         }
 
         protected override void OnUnload()
