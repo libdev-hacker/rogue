@@ -8,6 +8,8 @@ namespace Rogue.Utils
         
         public Uri Uri { get; }
 
+        public static readonly string BlankPage = "about:blank";
+
         private RestClient _client;
 
         public WebClient(string url)
@@ -19,7 +21,7 @@ namespace Rogue.Utils
             }
             catch (UriFormatException)
             {
-                this.Uri = new ("about:blank");
+                this.Uri = new (WebClient.BlankPage);
                 _client = new (this.Uri);
             }
         }

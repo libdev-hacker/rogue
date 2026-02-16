@@ -21,7 +21,7 @@ namespace Rogue
 
         public void RenderPage()
         {
-            if (_client.Uri.AbsoluteUri != "about:blank")
+            if (_client.Uri.AbsoluteUri != WebClient.BlankPage)
             {
                 _html ??= _client.GetResource("/", null);
 
