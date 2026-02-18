@@ -41,7 +41,7 @@ namespace Rogue.Graphics
             _coords ??= coords;
         }
 
-        public void AddVertexBufferObject(Buffer buffer)
+        public void AddVertexBufferObject(GraphicsBuffer buffer)
         {
             if (buffer.BufferType == BufferTarget.ArrayBuffer)
             {
@@ -49,7 +49,7 @@ namespace Rogue.Graphics
             }
         }
 
-        public void AddElementBufferObject(Buffer buffer)
+        public void AddElementBufferObject(GraphicsBuffer buffer)
         {
             if (buffer.BufferType == BufferTarget.ElementArrayBuffer)
             {
@@ -88,7 +88,7 @@ namespace Rogue.Graphics
                 if (this.Ebo is not null)
                 {
                     GL.BindBuffer(target, (int)this.Ebo); // More annoying
-                    GL.BufferData(target, Buffer.Indices.Length * sizeof(uint), Buffer.Indices, BufferUsageHint.StaticDraw);
+                    GL.BufferData(target, GraphicsBuffer.Indices.Length * sizeof(uint), GraphicsBuffer.Indices, BufferUsageHint.StaticDraw);
                 }
             }
         }

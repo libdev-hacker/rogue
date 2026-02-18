@@ -2,7 +2,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace Rogue.Graphics
 {
-    public struct Buffer
+    public struct GraphicsBuffer
     {
         public int Handle { get; }
 
@@ -13,7 +13,7 @@ namespace Rogue.Graphics
             1, 2, 3
         ]; // From LearnOpenGL
 
-        public Buffer(BufferTarget kind)
+        public GraphicsBuffer(BufferTarget kind)
         {
             this.Handle = GL.GenBuffer();
             this.BufferType = kind;

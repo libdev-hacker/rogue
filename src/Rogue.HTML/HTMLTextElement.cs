@@ -5,7 +5,6 @@ using OpenTK.Mathematics;
 
 using Rogue.Graphics;
 using Rogue.Utils;
-using GraphicsBuffer = Rogue.Graphics.Buffer;
 
 namespace Rogue.HTML
 {
