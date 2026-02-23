@@ -30,6 +30,24 @@ namespace Rogue.Graphics
             return handle;
         }
 
+        public static int CreateText(string text, ref float[] coords)
+        {
+            int handle;
+            float[] newCoords = coords;
+
+            FontRectangle textDimensions = TextRenderer.MeasureText(text, out RichTextOptions opts);
+
+            using (Image<Rgba32> image = new (Convert.ToInt32(textDimensions.Width), Convert.ToInt32(textDimensions.Height)))
+            {
+                image.Mutate(i => i.DrawText(opts, text, new SolidBrush(Color.Black)).BackgroundColor(Color.White));
+                handle = Texture.CreateTexture(image, ref newCoords);
+            }
+
+            coords = newCoords;
+
+            return handle;
+        }
+
         public static Vector2i MeasureText(string text)
         {
             FontRectangle dimensions = TextRenderer.MeasureText(text, out _);
