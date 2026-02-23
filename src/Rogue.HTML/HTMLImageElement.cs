@@ -1,4 +1,5 @@
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 
 using OpenTK.Mathematics;
@@ -142,6 +143,25 @@ namespace Rogue.HTML
                     if (imageFile is not null)
                     {
                         _image ??= await Image.LoadAsync<Rgba32>(imageFile);
+                        
+                        bool hasWidth = this.Attributes.TryGetValue("width", out string? widthAttribute);
+                        bool hasHeight = this.Attributes.TryGetValue("height", out string? heightattribute);
+                        int width = Convert.ToInt32(widthAttribute);
+                        int height = Convert.ToInt32(heightattribute);
+
+                        if (hasWidth && hasHeight)
+                        {
+                            _image.Mutate(i => i.Resize(new Size(width, height)));
+                        } else if (hasWidth && !hasHeight)
+                        {
+                            int aspectRatio = _image.Height / _image.Width;
+                            _image.Mutate(i => i.Resize(new Size(width, width * aspectRatio)));
+                        } else if (!hasWidth && hasHeight)
+                        {
+                            int aspectRatio = _image.Width / _image.Height;
+                            _image.Mutate(i => i.Resize(new Size(height * aspectRatio, height)));
+                        }
+
                         return;
                     }
                 }
