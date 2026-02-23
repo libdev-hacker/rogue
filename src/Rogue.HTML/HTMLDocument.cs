@@ -19,20 +19,27 @@ namespace Rogue.HTML
             {
                 using (_reader ??= XmlReader.Create(stringReader))
                 {
-                    while (_reader.Read())
+                    try
                     {
-                        switch (_reader.NodeType)
+                        while (_reader.Read())
                         {
-                            case XmlNodeType.Element:
-                                ParseElement();
-                                break;
-                            case XmlNodeType.Text:
-                                if (_current is HTMLTextElement) _current.AddText(_reader.Value);
-                                break;
-                            case XmlNodeType.EndElement:
-                                if (!_current.IsRoot) _current = _current.Parent ?? new (); // Annoying
-                                break;
+                            switch (_reader.NodeType)
+                            {
+                                case XmlNodeType.Element:
+                                    ParseElement();
+                                    break;
+                                case XmlNodeType.Text:
+                                    if (_current is HTMLTextElement) _current.AddText(_reader.Value);
+                                    break;
+                                case XmlNodeType.EndElement:
+                                    if (!_current.IsRoot) _current = _current.Parent ?? new (); // Annoying
+                                    break;
+                            }
                         }
+                    }
+                    catch (XmlException e)
+                    {
+                        if (_reader.EOF && !e.Message.Contains("closed")) throw;
                     }
                 }
             }
@@ -56,7 +63,7 @@ namespace Rogue.HTML
                 {
                     _current.AddChild(element);
                     element.Parent = _current;
-                    _current = element;
+                    if (element.HasEndTag) _current = element;
                 }
             }
         }

@@ -17,6 +17,8 @@ namespace Rogue.HTML
 
         private string? _altText;
 
+        public HTMLImageElement() => this.HasEndTag = false;
+
         public override void Draw()
         {
             bool isImage = _image is not null;
