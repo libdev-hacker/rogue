@@ -44,7 +44,7 @@ namespace Rogue.HTML
             if (_reader is not null)
             {
                 string name = _reader.Name;
-                HTMLElement element = HTMLTextElement.SupportedTags.Contains(name) ? new HTMLTextElement() : new ();
+                HTMLElement element = GetElementType(name);
                 element.PopulateAttributes(_reader);
                 element.TagName = name;
 
@@ -82,6 +82,20 @@ namespace Rogue.HTML
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        private static HTMLElement GetElementType(string tagName)
+        {
+            if (HTMLTextElement.SupportedTags.Contains(tagName))
+            {
+                return new HTMLTextElement();
+            } else if (HTMLImageElement.SupportedTags.Contains(tagName))
+            {
+                return new HTMLImageElement();
+            } else
+            {
+                return new HTMLElement();
+            }
+        }
 
     }
 }
