@@ -17,9 +17,9 @@ namespace Rogue.Graphics
             int handle;
             float[] newCoords = coords;
 
-            FontRectangle textDimensions = TextRenderer.MeasureText(element.Text, out RichTextOptions opts);
+            RichTextOptions opts = TextRenderer.GenerateFont();
 
-            using (Image<Rgba32> image = new (Convert.ToInt32(textDimensions.Width), Convert.ToInt32(textDimensions.Height)))
+            using (Image<Rgba32> image = new (element.Dimensions.X, element.Dimensions.Y))
             {
                 image.Mutate(i => i.DrawText(opts, element.Text, new SolidBrush(Color.Black)).BackgroundColor(Color.White));
                 handle = Texture.CreateTexture(image, ref newCoords);
@@ -56,23 +56,27 @@ namespace Rogue.Graphics
 
         private static FontRectangle MeasureText(string text, out RichTextOptions opts)
         {
+            const int padding = 20;
+            opts = TextRenderer.GenerateFont();
 
+            FontRectangle textSize = TextMeasurer.MeasureSize(text, opts);
+            FontRectangle paddedSize = new (textSize.X, textSize.Y, textSize.Width+padding, textSize.Height+padding);
+
+            return paddedSize;
+        }
+
+        private static RichTextOptions GenerateFont()
+        {
             bool hasFont = SystemFonts.TryGet("Segoe UI", out _); // Temporary default font
             if (!hasFont) Console.WriteLine("Font not found!"); // Temporary error handling / test
 
             const float defaultSize = 12.0f;
             Font font = SystemFonts.CreateFont("Segoe UI", defaultSize);
 
-            opts = new (font)
+            return new (font)
             {
                 Dpi = Window.HorizontalDpi
             };
-
-            const int padding = 20;
-            FontRectangle textSize = TextMeasurer.MeasureSize(text, opts);
-            FontRectangle paddedSize = new (textSize.X, textSize.Y, textSize.Width+padding, textSize.Height+padding);
-
-            return paddedSize;
         }
     }
 }
