@@ -26,6 +26,14 @@ namespace Rogue.Graphics
 
         ~DrawingContext() => Dispose(false);
 
+        public void DrawElement()
+        {
+            if (GL.IsVertexArray(this.Vao))
+            {
+                GL.DrawElements(BeginMode.Triangles, GraphicsBuffer.Indices.Length, DrawElementsType.UnsignedInt, 0);
+            }
+        }
+
         public void AddTexture(string name, int handle)
         {
             _textures.Add(name, handle);
