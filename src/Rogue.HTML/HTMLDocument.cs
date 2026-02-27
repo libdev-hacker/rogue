@@ -29,7 +29,7 @@ namespace Rogue.HTML
                                     ParseElement();
                                     break;
                                 case XmlNodeType.Text:
-                                    if (_current is HTMLTextElement) _current.AddText(_reader.Value);
+                                    _current.AddText(_reader.Value);
                                     break;
                                 case XmlNodeType.EndElement:
                                     if (!_current.IsRoot) _current = _current.Parent ?? new (); // Annoying
