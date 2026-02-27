@@ -115,9 +115,7 @@ namespace Rogue.HTML
             }
 
             this.Renderer.UseShader();
-            var matrix = Shader.Orthogonal;
-            int loc = Shader.GetUniformLocation(this.Renderer.Shader, "transform");
-            if (loc != -1) GL.UniformMatrix4(loc, true, ref matrix);
+            Shader.SetOrthogonalMatrix(this.Renderer.Shader);
 
             this.Renderer.BindVao();
             this.Renderer.BindBuffer(BufferTarget.ArrayBuffer);

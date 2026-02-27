@@ -67,9 +67,11 @@ namespace Rogue.Graphics
             return GL.GetAttribLocation(shader, name);
         }
 
-        public static int GetUniformLocation(int shader, string name)
+        public static void SetOrthogonalMatrix(int shader)
         {
-            return GL.GetUniformLocation(shader, name);
+            Matrix4 matrix = Shader.Orthogonal;
+            int loc = GL.GetUniformLocation(shader, "transform");
+            if (loc != -1) GL.UniformMatrix4(loc, true, ref matrix);
         }
 
         private static void PrintError(string message)
