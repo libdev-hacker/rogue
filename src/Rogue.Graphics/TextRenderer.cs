@@ -21,7 +21,7 @@ namespace Rogue.Graphics
 
             using (Image<Rgba32> image = new (element.Dimensions.X, element.Dimensions.Y))
             {
-                image.Mutate(i => i.DrawText(opts, element.Text, new SolidBrush(Color.Black)).BackgroundColor(Color.White));
+                image.Mutate(i => i.DrawText(opts, element.InnerText.Text, new SolidBrush(Color.Black)).BackgroundColor(Color.White));
                 handle = Texture.CreateTexture(image, ref newCoords);
             }
 
