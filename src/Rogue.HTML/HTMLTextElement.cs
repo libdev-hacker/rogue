@@ -1,7 +1,4 @@
-using System.Text;
-
 using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
 
 using Rogue.Graphics;
 using Rogue.Utils;
@@ -10,17 +7,15 @@ namespace Rogue.HTML
 {
     public class HTMLTextElement: HTMLElement
     {
-        private readonly StringBuilder _text = new ();
-
-        public string Text { get => _text.ToString(); }
-
         public static readonly string[] SupportedTags = [ "p", "div" ];
 
-        public override void AddText(string text) => _text.Append(text);
+        public TextContainer InnerText { get; } = new ();
+        
+        public override void AddText(string text) => this.InnerText.AddText(text);
 
         public override void Draw()
         {
-            if (this.Dimensions == Vector2i.Zero) this.Dimensions = TextRenderer.MeasureText(this.Text);
+            this.Dimensions = TextRenderer.MeasureText(this.InnerText.Text);
 
             this.Renderer.AddCoordinates(this.Container.GetCoords(this.Depth));
 
@@ -92,7 +87,7 @@ namespace Rogue.HTML
             this.Renderer.BindTexture(id);
             this.Renderer.AddAttributePointer(1, 2, VertexAttribPointerType.Float, 5 * sizeof(float), 3 * sizeof(float));
 
-            GL.DrawElements(BeginMode.Triangles, GraphicsBuffer.Indices.Length, DrawElementsType.UnsignedInt, 0);
+            this.Renderer.DrawElement();
         }
     }
 }
