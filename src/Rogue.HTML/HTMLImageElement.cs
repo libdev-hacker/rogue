@@ -16,14 +16,19 @@ namespace Rogue.HTML
 
         private Image<Rgba32>? _image;
 
-        private string? _altText;
+        private TextContainer? _altText;
 
         public HTMLImageElement() => this.HasEndTag = false;
+
+        public override void AddText(string text)
+        {
+            if (_altText is not null) _altText += text;
+        }
 
         public override void Draw()
         {
             bool isImage = _image is not null;
-            bool isAltText = _altText is not null && _altText != "";
+            bool isAltText = _altText is not null && _altText.Text != "";
 
             // Determining what should be rendered
             if (!isImage && !isAltText)
@@ -34,7 +39,7 @@ namespace Rogue.HTML
                     this.Dimensions = new Vector2i(_image.Width, _image.Height);
                 } else if (_altText is not null)
                 {
-                    this.Dimensions = TextRenderer.MeasureText(_altText);
+                    this.Dimensions = TextRenderer.MeasureText(_altText.Text);
                 }
                 this.Renderer.AddCoordinates(this.Container.GetCoords(this.Depth));
             }
@@ -84,7 +89,7 @@ namespace Rogue.HTML
                 id = Convert.ToString(this.GetHashCode());
             } else if (isAltText)
             {
-                id = _altText!;
+                id = _altText!.Text;
             }
 
             if (!this.Renderer.Textures.ContainsKey(id) && this.Renderer.Coords is not null)
@@ -95,7 +100,7 @@ namespace Rogue.HTML
                     texture = Texture.CreateTexture(_image!, ref this.Renderer.Coords);
                 } else if (isAltText)
                 {
-                    texture = TextRenderer.CreateText(_altText!, ref this.Renderer.Coords);
+                    texture = TextRenderer.CreateText(_altText!.Text, ref this.Renderer.Coords);
                 }
                 this.Renderer.AddTexture(id, texture);
             }
@@ -122,7 +127,7 @@ namespace Rogue.HTML
             this.Renderer.BindTexture(id);
             this.Renderer.AddAttributePointer(1, 2, VertexAttribPointerType.Float, 5 * sizeof(float), 3 * sizeof(float));
 
-            GL.DrawElements(BeginMode.Triangles, GraphicsBuffer.Indices.Length, DrawElementsType.UnsignedInt, 0);
+            this.Renderer.DrawElement();
         }
 
         public new void EndDraw()
@@ -169,7 +174,7 @@ namespace Rogue.HTML
             
             if (this.Attributes.TryGetValue("alt", out string? altText))
             {
-                _altText ??= altText;
+                _altText?.Text = altText;
             }
         }
     }
