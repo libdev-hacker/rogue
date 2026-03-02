@@ -1,6 +1,8 @@
 using System.Xml;
 using System.Collections;
 
+using Rogue.JS;
+
 namespace Rogue.HTML
 {
     public class HTMLDocument: IEnumerable<HTMLElement>
@@ -13,7 +15,7 @@ namespace Rogue.HTML
 
         private HTMLElement _current = new ();
 
-        public void ParseDocument(string html)
+        public void ParseDocument(string html, JsEngine engine)
         {
             using (StringReader stringReader = new (html))
             {
@@ -32,6 +34,7 @@ namespace Rogue.HTML
                                     _current.AddText(_reader.Value);
                                     break;
                                 case XmlNodeType.EndElement:
+                                    if (_current is HTMLScriptElement script) script.RunScript(engine);
                                     if (!_current.IsRoot) _current = _current.Parent ?? new (); // Annoying
                                     break;
                             }
@@ -132,10 +135,12 @@ namespace Rogue.HTML
             } else if (HTMLImageElement.SupportedTags.Contains(tagName))
             {
                 return new HTMLImageElement();
-            } else
+            } else if (HTMLScriptElement.SupportedTags.Contains(tagName))
             {
-                return new HTMLElement();
+                return new HTMLScriptElement();
             }
+
+            return new HTMLElement();
         }
 
     }

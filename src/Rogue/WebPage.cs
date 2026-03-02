@@ -39,7 +39,7 @@ namespace Rogue
 
                 if (_html is null) return; // Temporary way of handling a blank page / bad path
 
-                if (!_htmlDoc.Loaded) _htmlDoc.ParseDocument(_html);
+                if (!_htmlDoc.Loaded) _htmlDoc.ParseDocument(_html, _js);
 
                 foreach (HTMLElement element in _htmlDoc)
                 {
