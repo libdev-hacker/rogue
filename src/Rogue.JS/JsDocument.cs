@@ -40,5 +40,18 @@ namespace Rogue.JS
 
             return new (elements, _engine);
         }
+
+        public JsHTMLCollection GetElementsByTagName(string name)
+        {
+            List<JsElement> elements = [];
+            IEnumerable<HTMLElement> selectedElements = name == "*" ? _document : _document.SearchTree(name, PropertyType.TagName);
+
+            foreach (HTMLElement element in selectedElements)
+            {
+                elements.Add(element);
+            }
+
+            return new (elements, _engine);
+        }
     }
 }
