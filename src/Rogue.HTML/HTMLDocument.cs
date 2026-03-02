@@ -46,6 +46,40 @@ namespace Rogue.HTML
             this.Loaded = true;
         }
 
+        public HTMLElement[] SearchTree(string property, PropertyType propertyType)
+        {
+            HTMLElement[] foundElements = [];
+
+            switch (propertyType)
+            {
+                case PropertyType.Class:
+                    foundElements = this.Where(x =>
+                    {
+                        if (x.Attributes.TryGetValue("class", out string? className))
+                        {
+                            return className == property;
+                        }
+                        return false;
+                    }).ToArray();
+                    break;
+                case PropertyType.Id:
+                    foundElements = [this.First(x =>
+                    {
+                        if (x.Attributes.TryGetValue("id", out string? id))
+                        {
+                            return id == property;
+                        }
+                        return false;
+                    })];
+                    break;
+                case PropertyType.TagName:
+                    foundElements = this.Where(x => x.TagName == property).ToArray();
+                    break;
+            }
+
+            return foundElements;
+        }
+
         private void ParseElement()
         {
             if (_reader is not null)
