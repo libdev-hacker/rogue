@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Jint" Version="4.6.1" />
     <PackageReference Include="OpenTK" Version="4.9.4" />
     <PackageReference Include="RestSharp" Version="113.1.0" />
     <PackageReference Include="SixLabors.Fonts" Version="2.1.3" />
