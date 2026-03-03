@@ -61,7 +61,7 @@ namespace Rogue
 
         private void PrepareJsEngine()
         {
-            _js.AddNativeObject(new Action<object>(Console.WriteLine), "log");
+            _js.AddNativeObject(new JsConsole(), "console");
             _js.AddNativeObject(_jsDocument, "document");
 
             _js.AddNativeClass<JsElement>("Element");
