@@ -10,6 +10,6 @@ namespace Rogue.HTML
 
         public override void AddText(string text) => _text.AddText(text);
 
-        public void RunScript(JsEngine engine) => engine.Engine.Execute(_text.Text);
+        public void RunScript(JsEngine engine) => engine.RunScript(_text.Text);
     }
 }
