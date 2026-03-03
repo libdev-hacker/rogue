@@ -1,6 +1,7 @@
 using OpenTK.Mathematics;
 
 using Rogue.Graphics;
+using Rogue.JS;
 
 namespace Rogue.HTML
 {
@@ -43,6 +44,10 @@ namespace Rogue.HTML
         public virtual void Draw() { }
 
         public virtual void AddText(string text) { }
+
+        public virtual void Click(JsEngine? engine = null) {  }
+
+        public bool IsPointWithin(Vector2i point) => this.Container.ContainsInclusive(point);
 
         public void AddChild(HTMLElement childNode)
         {

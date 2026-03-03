@@ -1,3 +1,5 @@
+using OpenTK.Mathematics;
+
 using Rogue.HTML;
 using Rogue.JS;
 using Rogue.Utils;
@@ -44,6 +46,20 @@ namespace Rogue
                 foreach (HTMLElement element in _htmlDoc)
                 {
                     element.Draw();
+                }
+            }
+        }
+
+        public void RegisterClick(Vector2i clickPoint)
+        {
+            foreach (HTMLElement element in _htmlDoc)
+            {
+                if (element.IsPointWithin(clickPoint))
+                {
+                    if (element is HTMLButtonElement button)
+                    {
+                        button.Click(_js);
+                    }
                 }
             }
         }
