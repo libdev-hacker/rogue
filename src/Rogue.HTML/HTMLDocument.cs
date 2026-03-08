@@ -11,7 +11,7 @@ namespace Rogue.HTML
 
         public bool Loaded { get; private set; }
 
-        private XmlReader? _reader;
+        private XmlTextReader? _reader;
 
         private HTMLElement _current = new ();
 
@@ -19,7 +19,7 @@ namespace Rogue.HTML
         {
             using (StringReader stringReader = new (html))
             {
-                using (_reader ??= XmlReader.Create(stringReader))
+                using (_reader ??= new (stringReader))
                 {
                     try
                     {
@@ -36,6 +36,7 @@ namespace Rogue.HTML
                                 case XmlNodeType.EndElement:
                                     if (_current is HTMLScriptElement script) script.RunScript(engine);
                                     if (!_current.IsRoot) _current = _current.Parent ?? new (); // Annoying
+                                    _reader.ResetState();
                                     break;
                             }
                         }

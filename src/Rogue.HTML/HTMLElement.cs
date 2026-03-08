@@ -3,7 +3,6 @@ using OpenTK.Graphics.OpenGL4;
 
 using Rogue.Graphics;
 using Rogue.JS;
-using Rogue.Utils;
 
 namespace Rogue.HTML
 {
@@ -11,7 +10,15 @@ namespace Rogue.HTML
     {
         public Vector2i Dimensions { get; set; }
 
-        public Vector2i Location { get; set; }
+        public Vector2i Location { get
+            {
+                if (this.Parent is not null)
+                {
+                    return new (this.Parent.Location.X, this.Parent.Location.Y + this.Parent.Dimensions.Y);
+                }
+                return Vector2i.Zero;
+            }
+        }
 
         public string TagName { get; set; } = "";
 
@@ -34,13 +41,11 @@ namespace Rogue.HTML
         public HTMLElement()
         {
             this.Dimensions = Vector2i.Zero;
-            this.Location = Vector2i.Zero;
         }
 
         public HTMLElement(int width, int height, int x, int y)
         {
             this.Dimensions = new (width, height);
-            this.Location = new (x, y);
         }
 
         public virtual void Draw()
