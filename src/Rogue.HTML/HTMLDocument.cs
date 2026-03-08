@@ -138,6 +138,9 @@ namespace Rogue.HTML
             } else if (HTMLScriptElement.SupportedTags.Contains(tagName))
             {
                 return new HTMLScriptElement();
+            } else if (HTMLButtonElement.SupportedTags.Contains(tagName))
+            {
+                return new HTMLButtonElement();
             }
 
             return new HTMLElement();

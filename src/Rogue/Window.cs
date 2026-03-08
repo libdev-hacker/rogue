@@ -67,7 +67,7 @@ namespace Rogue
 
             WebPage currentPage = _tabs.Current.Value;
             Vector2 pos = this.MousePosition;
-            currentPage.RegisterClick(this.PointToClient(new (Convert.ToInt32(pos.X), Convert.ToInt32(pos.Y))));
+            currentPage.RegisterClick(new (Convert.ToInt32(pos.X), Convert.ToInt32(pos.Y)));
         }
 
         private static Vector2i FixDimensions(int width, int height)

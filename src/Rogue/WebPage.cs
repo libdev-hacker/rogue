@@ -56,10 +56,7 @@ namespace Rogue
             {
                 if (element.IsPointWithin(clickPoint))
                 {
-                    if (element is HTMLButtonElement button)
-                    {
-                        button.Click(_js);
-                    }
+                    element.Click(_js);
                 }
             }
         }
