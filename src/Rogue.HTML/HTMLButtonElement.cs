@@ -39,7 +39,7 @@ namespace Rogue.HTML
         {
             if (this.Attributes.TryGetValue("onclick", out string? clickMethod))
             {
-                engine?.InvokeMethod(clickMethod);
+                engine?.RunScript(clickMethod);
             }
         }
     }
