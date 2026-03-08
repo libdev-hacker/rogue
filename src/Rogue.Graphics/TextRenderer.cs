@@ -30,7 +30,7 @@ namespace Rogue.Graphics
             return handle;
         }
 
-        public static int CreateText(string text, ref float[] coords)
+        public static int CreateText(string text, ref float[] coords, Color bgColour)
         {
             int handle;
             float[] newCoords = coords;
@@ -39,7 +39,7 @@ namespace Rogue.Graphics
 
             using (Image<Rgba32> image = new (Convert.ToInt32(textDimensions.Width), Convert.ToInt32(textDimensions.Height)))
             {
-                image.Mutate(i => i.DrawText(opts, text, new SolidBrush(Color.Black)).BackgroundColor(Color.White));
+                image.Mutate(i => i.DrawText(opts, text, new SolidBrush(Color.Black)).BackgroundColor(bgColour));
                 handle = Texture.CreateTexture(image, ref newCoords);
             }
 
@@ -47,6 +47,8 @@ namespace Rogue.Graphics
 
             return handle;
         }
+
+        public static int CreateText(string text, ref float[] coords) => TextRenderer.CreateText(text, ref coords, Color.White);
 
         public static Vector2i MeasureText(string text)
         {
