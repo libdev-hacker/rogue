@@ -39,14 +39,19 @@ namespace Rogue
             {
                 _html ??= _client.GetResource("/", null);
 
-                if (_html is null) return; // Temporary way of handling a blank page / bad path
+            } else
+            {
+                string? path = Path.GetDirectoryName(Environment.ProcessPath) + "/blank.html" ?? throw new Exception("Blank File no found!");
+                _html ??= File.ReadAllText(path);
+            }
 
-                if (!_htmlDoc.Loaded) _htmlDoc.ParseDocument(_html, _js);
+            if (_html is null) return; // Temporary way of handling a blank page / bad path
 
-                foreach (HTMLElement element in _htmlDoc)
-                {
-                    element.Draw();
-                }
+            if (!_htmlDoc.Loaded) _htmlDoc.ParseDocument(_html, _js);
+
+            foreach (HTMLElement element in _htmlDoc)
+            {
+                element.Draw();
             }
         }
 

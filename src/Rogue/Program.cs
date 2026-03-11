@@ -1,19 +1,15 @@
-﻿
+﻿using Rogue.Utils;
+
 namespace Rogue
 {
     class Program
     {
         public static void Main(string[] args)
         {
-            if (args.Length == 0)
+            string url = args.Length == 0 ? WebClient.BlankPage : args[0];
+            using (var window = new Window(600, 800, url))
             {
-                Console.WriteLine("Usage: rogue <url>");
-            } else
-            {
-                using (var window = new Window(600, 800, args[0]))
-                {
-                    window.Run();
-                }
+                window.Run();
             }
         }
     }
