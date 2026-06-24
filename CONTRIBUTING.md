@@ -65,7 +65,7 @@ Unlike an increasing amount of projects nowadays, I, [libdev-hacker](https://git
 
 I do not take this stance because I do not see the benefit of LLMs in programming but because of recent (as of the time of writing this document) conversations about code provenance & licensing issues that arise from it. I do not wish Rogue to become a project that rests on the shoulders of other developer's code with no due respect for their indirect contribution or claim over the code they have written. 
 
-This being said, I have no problem with developers / contributors using an LLM model as a tool to aid in the process of contributing to the browser project. I feel this way because I am one of the people (of what feels like a vanishing minority recently) that still see LLMs as a tool (in more ways than one *wink wink*) & if used in this manner, can still be used as an educational aide for people learning how to properly contirbute to open source programs.
+This being said, I have no problem with developers / contributors using an LLM model as a tool to aid in the process of contributing to the browser project. I feel this way because I am one of the people (of what feels like a vanishing minority recently) that still see LLMs as a tool (in more ways than one *wink wink*) & if used in this manner, can still be used as an educational aide for people learning how to properly contribute to open source programs.
 
 ## Any Questions?
 
