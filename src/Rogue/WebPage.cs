@@ -2,6 +2,7 @@ using OpenTK.Mathematics;
 
 using Rogue.HTML;
 using Rogue.JS;
+using Rogue.JS.DOM;
 using Rogue.Utils;
 
 namespace Rogue
@@ -25,7 +26,7 @@ namespace Rogue
             this.Url = url;
             _client = new (url);
 
-            _jsDocument = new(_htmlDoc, _js.Engine)
+            _jsDocument = new(_htmlDoc, _js)
             {
                 URL = this.Url
             };

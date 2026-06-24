@@ -1,4 +1,3 @@
-using Rogue.HTML;
 
 using SixLabors.ImageSharp;
 using SixLabors.Fonts;
@@ -12,24 +11,6 @@ namespace Rogue.Graphics
 {
     public static class TextRenderer
     {
-        public static int CreateText(HTMLTextElement element, ref float[] coords)
-        {
-            int handle;
-            float[] newCoords = coords;
-
-            RichTextOptions opts = TextRenderer.GenerateFont();
-
-            using (Image<Rgba32> image = new (element.Dimensions.X, element.Dimensions.Y))
-            {
-                image.Mutate(i => i.DrawText(opts, element.InnerText.Text, new SolidBrush(Color.Black)).BackgroundColor(Color.White));
-                handle = Texture.CreateTexture(image, ref newCoords);
-            }
-
-            coords = newCoords;
-            
-            return handle;
-        }
-
         public static int CreateText(string text, ref float[] coords, Color bgColour)
         {
             int handle;
@@ -39,7 +20,7 @@ namespace Rogue.Graphics
 
             using (Image<Rgba32> image = new (Convert.ToInt32(textDimensions.Width), Convert.ToInt32(textDimensions.Height)))
             {
-                image.Mutate(i => i.DrawText(opts, text, new SolidBrush(Color.Black)).BackgroundColor(bgColour));
+                image.Mutate(i => i.Paint(canvas => canvas.DrawText(opts, text, new SolidBrush(Color.Black), null)).BackgroundColor(bgColour));
                 handle = Texture.CreateTexture(image, ref newCoords);
             }
 
@@ -61,7 +42,7 @@ namespace Rogue.Graphics
             const int padding = 20;
             opts = TextRenderer.GenerateFont();
 
-            FontRectangle textSize = TextMeasurer.MeasureSize(text, opts);
+            FontRectangle textSize = TextMeasurer.MeasureRenderableBounds(text, opts);
             FontRectangle paddedSize = new (textSize.X, textSize.Y, textSize.Width+padding, textSize.Height+padding);
 
             return paddedSize;
@@ -77,7 +58,7 @@ namespace Rogue.Graphics
 
             return new (font)
             {
-                Dpi = Window.HorizontalDpi
+                Dpi = 72 // Temporary default (story of this method)
             };
         }
     }

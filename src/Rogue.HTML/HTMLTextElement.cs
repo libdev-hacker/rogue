@@ -21,7 +21,7 @@ namespace Rogue.HTML
 
             if (!this.Renderer.Textures.ContainsKey(id) && this.Renderer.Coords is not null)
             {
-                int renderedText = TextRenderer.CreateText(this, ref this.Renderer.Coords);
+                int renderedText = TextRenderer.CreateText(this.InnerText.Text, ref this.Renderer.Coords);
                 this.Renderer.AddTexture(id, renderedText);
             }
 
