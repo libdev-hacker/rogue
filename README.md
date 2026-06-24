@@ -1,7 +1,7 @@
-<div style="align: center">
-    <h1 style="text-align: center">Rogue</h1>
-    <h3 style="text-align: center">The Experimental Web Browser (Written in C#) That Your Aunts & Uncles at <s>G00gle</s> & M*cr*<s>slo...</s> Warned You About</h3>
-    <p style="text-align: center">... and the one our friends @ Mozilla & Ladybird look at with great curiosity</p>
+<div align="center">
+    <h1>Rogue</h1>
+    <h3>The Experimental Web Browser (Written in C#) That Your Aunts & Uncles at <s>G00gle</s> & M*cr*<s>slo...</s> Warned You About</h3>
+    <p>... and the one our friends @ Mozilla & Ladybird look at with great curiosity</p>
 </div>
 
 ![Static Badge](https://img.shields.io/badge/License-MIT-blue?style=plastic) ![GitHub Repo stars](https://img.shields.io/github/stars/libdev-hacker/rogue?style=plastic&logo=github) <a href="https://github.com/libdev-hacker/rogue/issues"><img alt="GitHub Issues or Pull Requests" src="https://img.shields.io/github/issues-raw/libdev-hacker/rogue"></a> ![GitHub repo size](https://img.shields.io/github/repo-size/libdev-hacker/rogue)
@@ -82,4 +82,4 @@ For full guidance of contributing, please see our [CONTRIBUTING.MD](CONTRIBUTING
 <a href="https://github.com/libdev-hacker/rogue/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=libdev-hacker/rogue" />
 </a>
-<p style="font-size: xx-small">I'm so alone 😭</p>
+<p>I'm so alone 😭</p>
