@@ -1,8 +1,9 @@
 using Jint;
 
 using Rogue.HTML;
+using Rogue.JS;
 
-namespace Rogue.JS
+namespace Rogue.JS.DOM
 {
     public class JsDocument
     {
@@ -10,9 +11,9 @@ namespace Rogue.JS
 
         private readonly HTMLDocument _document;
 
-        private readonly Engine _engine;
+        private readonly JsEngine _engine;
 
-        public JsDocument(HTMLDocument doc, Engine engine)
+        public JsDocument(HTMLDocument doc, JsEngine engine)
         {
             _document = doc;
             _engine = engine;

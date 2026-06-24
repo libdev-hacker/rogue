@@ -1,7 +1,7 @@
 using Jint;
 using Jint.Native;
 
-namespace Rogue.JS
+namespace Rogue.JS.DOM
 {
     public class JsHTMLCollection
     {
@@ -9,9 +9,9 @@ namespace Rogue.JS
 
         private readonly IEnumerable<JsElement> _elements;
 
-        private readonly Engine _engine;
+        private readonly JsEngine _engine;
 
-        public JsHTMLCollection(IEnumerable<JsElement> elements, Engine engine)
+        public JsHTMLCollection(IEnumerable<JsElement> elements, JsEngine engine)
         {
             _elements = elements;
             _engine = engine;

@@ -1,9 +1,9 @@
-using Jint;
 using Jint.Native;
 
 using Rogue.HTML;
+// using Rogue.JS;
 
-namespace Rogue.JS
+namespace Rogue.JS.DOM
 {
     public class JsElement
     {
@@ -31,6 +31,6 @@ namespace Rogue.JS
 
         public static implicit operator JsElement(HTMLElement element) => new (element);
 
-        public JsValue ToJsValue(Engine engine) => JsValue.FromObject(engine, this);
+        public JsValue ToJsValue(JsEngine engine) => JsValue.FromObject(engine.Engine, this);
     }
 }
