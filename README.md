@@ -67,7 +67,11 @@ If you leave the URL argument blank, you will be redirected to Rogue's default b
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE). This allows for Rogue or any of its constituent projects to be used, modified & re-distributed by anyone within the community. (Patches are still very much welcome though)
+This project is licensed under the [MIT License](LICENSE). This allows for Rogue or any of its constituent projects (<u>unless stated otherwise below</u>) to be used, modified & re-distributed by anyone within the community. (Patches are still very much welcome though)
+
+### 3<sup>rd</sup> Party Libraries
+
+- [Msdfgen.Core](libs/MSDFGen-Sharp/Msdfgen.Core/) - Licensed under the MIT License. ([reference](https://github.com/ExtraBinoss/MSDFGen-Sharp/tree/main#-license))
 
 ## Contributing
 
