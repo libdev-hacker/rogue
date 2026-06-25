@@ -58,6 +58,16 @@ Rogue takes advantage of the [Conventional Commit Message](https://www.conventio
    - If it is a large commit with multiple changes, then each change should be detailed here. If there is only 1-2 changes, then more information SHOULD BE given here for clarity
    - All pertinent information included SHOULD BE in the form of a markdown unordered list (cascading points starting with a hyphen)
 
+### Style Guide
+
+- Please adhere to the official [C# Coding Style](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/identifier-names)
+   - Use PascalCase for data structures, methods & public members
+   - Use camelCase for local variables
+   - Names of private members MUST start with an underscore ```_```
+- Each class MUST be separated into its own file
+- File names MUST reflect the class they define (i.e. the class ```TestClass``` must be defined in ```TestClass.cs```)
+- [Recommended] Group namespace inclusions together
+
 
 ## Views on Vibe-Coded Contributions
 
