@@ -6,9 +6,9 @@ using Rogue.Utils;
 
 namespace Rogue.HTML
 {
-    public class HTMLButtonElement: HTMLElement
+    public class HTMLButtonElement: HTMLElement, ITags
     {
-        public readonly static string[] SupportedTags = [ "button" ];
+        public static string[] SupportedTags { get; } = [ "button" ];
 
         private readonly TextContainer _textContainer = new ();
 

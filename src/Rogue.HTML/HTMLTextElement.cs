@@ -3,9 +3,9 @@ using Rogue.Utils;
 
 namespace Rogue.HTML
 {
-    public class HTMLTextElement: HTMLElement
+    public class HTMLTextElement: HTMLElement, ITags
     {
-        public static readonly string[] SupportedTags = [ "p", "div" ];
+        public static string[] SupportedTags { get; } = [ "p", "div" ];
 
         public TextContainer InnerText { get; } = new ();
         

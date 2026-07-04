@@ -9,9 +9,9 @@ using Rogue.Utils;
 
 namespace Rogue.HTML
 {
-    public class HTMLImageElement: HTMLElement
+    public class HTMLImageElement: HTMLElement, ITags
     {
-        public static readonly string[] SupportedTags = [ "img" ];
+        public static string[] SupportedTags { get; } = [ "img" ];
 
         private Image<Rgba32>? _image;
 

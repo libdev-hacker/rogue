@@ -2,9 +2,9 @@ using Rogue.JS;
 
 namespace Rogue.HTML
 {
-    public class HTMLScriptElement: HTMLElement
+    public class HTMLScriptElement: HTMLElement, ITags
     {
-        public static readonly string[] SupportedTags = [ "script" ];
+        public static string[] SupportedTags { get; } = [ "script" ];
         
         private TextContainer _text = new ();
 
