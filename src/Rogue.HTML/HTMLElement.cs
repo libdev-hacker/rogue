@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL4;
 
@@ -24,6 +26,7 @@ namespace Rogue.HTML
 
         public Dictionary<string, string> Attributes { get; } = [];
 
+        [MemberNotNullWhen(false, nameof(Parent))]
         public bool IsRoot { get => this.Parent == null; }
 
         public HTMLElement? Parent { get; set; }

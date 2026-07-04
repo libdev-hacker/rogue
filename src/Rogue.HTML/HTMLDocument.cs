@@ -35,7 +35,7 @@ namespace Rogue.HTML
                                     break;
                                 case XmlNodeType.EndElement:
                                     if (_current is HTMLScriptElement script) script.RunScript(engine);
-                                    if (!_current.IsRoot) _current = _current.Parent ?? new (); // Annoying
+                                    if (!_current.IsRoot) _current = _current.Parent;
                                     _reader.ResetState();
                                     break;
                             }
