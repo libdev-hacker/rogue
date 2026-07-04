@@ -2,7 +2,7 @@
 
 namespace Rogue.HTML
 {
-    public enum PropertyType
+    internal enum PropertyType
     {
         Class,
         
