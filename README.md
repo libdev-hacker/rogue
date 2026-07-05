@@ -69,6 +69,10 @@ If you leave the URL argument blank, you will be redirected to Rogue's default b
 
 This project is licensed under the [MIT License](LICENSE). This allows for Rogue or any of its constituent projects to be used, modified & re-distributed by anyone within the community. (Patches are still very much welcome though)
 
+### Dependencies
+
+- [Veldrid2](https://github.com/veldrid2/veldrid2/): Licensed under the [MIT](libs/Veldrid/LICENSE) license
+
 ## Contributing
 
 In the spirit of the open web, I **greatly appreciate** any & all contributions! However, since I proudly stand behind my opposing view to that of the author of this rather [infamous quote](https://x.com/FFmpeg/status/1762805900035686805), I invite you to please open a discussion & propose any new ideas you have. Not only does this help me decide Rogue's next steps, it also allows you to fully think out any idea for features / bug fixes you may have with the community.
