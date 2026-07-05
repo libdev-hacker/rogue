@@ -1,8 +1,8 @@
-
+using System.Collections;
 
 namespace Rogue
 {
-    public class TabManager
+    public class TabManager: IEnumerable<WebPage>
     {
 
         public LinkedListNode<WebPage> Current { get; private set; }
@@ -37,5 +37,9 @@ namespace Rogue
             
             _webpages.Remove(pageToDelete);
         }
+
+        public IEnumerator<WebPage> GetEnumerator() => _webpages.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 }
