@@ -7,22 +7,21 @@ namespace Rogue
 
         public LinkedListNode<WebPage> Current { get; private set; }
 
-        private LinkedList<WebPage> _webpages;
+        private LinkedList<WebPage> _webpages = new ();
 
         public TabManager()
         {
-            _webpages = new ();
             WebPage newPage = new ();
             _webpages.AddFirst(newPage);
             
             this.Current = newPage;
         }
 
-        public void CreateTab(string url)
+        public void CreateTab(string url, bool switchTabs = false)
         {
             WebPage newPage = new (url);
             _webpages.AddLast(newPage);
-            SwitchTab(newPage);
+            if (switchTabs) SwitchTab(newPage);
         }
 
         public void SwitchTab(WebPage desiredPage) => this.Current = desiredPage;
