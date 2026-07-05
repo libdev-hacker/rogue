@@ -88,5 +88,6 @@ namespace Rogue
         }
 
         public static implicit operator LinkedListNode<WebPage>(WebPage page) => new (page);
+        public static explicit operator WebPage(LinkedListNode<WebPage> node) => node.Value;
     }
 }

@@ -29,8 +29,8 @@ namespace Rogue
 
         public void DeleteTab(WebPage pageToDelete)
         {
-
-            if (this.Current.Value == pageToDelete)
+            WebPage current = (WebPage) this.Current;
+            if (current == pageToDelete)
             {
                 this.Current = this.Current.Previous ?? new WebPage();
             }

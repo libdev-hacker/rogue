@@ -47,7 +47,7 @@ namespace Rogue
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            WebPage currentPage = _tabs.Current.Value;
+            WebPage currentPage = (WebPage) _tabs.Current;
             currentPage.RenderPage();
 
             SwapBuffers();
@@ -57,7 +57,7 @@ namespace Rogue
         {
             base.OnUnload();
 
-            WebPage currentPage = _tabs.Current.Value;
+            WebPage currentPage = (WebPage) _tabs.Current;
             currentPage.CleanUp();
         }
 
@@ -65,7 +65,7 @@ namespace Rogue
         {
             base.OnMouseUp(e);
 
-            WebPage currentPage = _tabs.Current.Value;
+            WebPage currentPage = (WebPage) _tabs.Current;
             Vector2 pos = this.MousePosition;
             currentPage.RegisterClick(new (Convert.ToInt32(pos.X), Convert.ToInt32(pos.Y)));
         }
