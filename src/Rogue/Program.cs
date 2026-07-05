@@ -1,4 +1,4 @@
-﻿using Rogue.Utils;
+﻿using Avalonia;
 
 namespace Rogue
 {
@@ -6,11 +6,9 @@ namespace Rogue
     {
         public static void Main(string[] args)
         {
-            string url = args.Length == 0 ? WebClient.BlankPage : args[0];
-            using (var window = new Window(600, 800, url))
-            {
-                window.Run();
-            }
+            Window window = new (600, 800);
+
+            AppBuilder.Configure<Application>().UsePlatformDetect().Start(window.Init, args);
         }
     }
 }

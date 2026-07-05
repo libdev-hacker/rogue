@@ -8,19 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\..\assets\*.*" CopyToOutputDirectory="PreserveNewest" />
+    <PackageReference Include="Avalonia" Version="12.0.5" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.0.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenTK" Version="4.9.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="../Rogue.Graphics/Rogue.Graphics.csproj" />
-    <ProjectReference Include="../Rogue.HTML/Rogue.HTML.csproj" />
-    <ProjectReference Include="../Rogue.JS.DOM/Rogue.JS.DOM.csproj" />
-    <ProjectReference Include="../Rogue.JS/Rogue.JS.csproj" />
-    <ProjectReference Include="../Rogue.Utils/Rogue.Utils.csproj" />
+    <ProjectReference Include="../Rogue.Manager/Rogue.Manager.csproj" />
   </ItemGroup>
 
 </Project>

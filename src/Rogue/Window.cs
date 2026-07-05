@@ -1,81 +1,52 @@
-using OpenTK.Graphics.OpenGL4;
-using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.Common;
-using OpenTK.Mathematics;
+using Avalonia;
+using Avalonia.Controls;
 
-using Rogue.Graphics;
+// using Rogue.Manager;
+
+using WindowControl = Avalonia.Controls.Window;
 
 namespace Rogue
 {
-    public class Window: GameWindow
+    internal class Window
     {
-        // Title is inherited from GameWindow
-
-        public static float HorizontalDpi { get; private set; }
-
-        private TabManager _tabs;
-        
-        public Window(int width, int height, string url): base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize=Window.FixDimensions(width, height), Title = "Rogue", Vsync = VSyncMode.On, WindowBorder = WindowBorder.Fixed })
+        private struct WindowDimensions
         {
-            _tabs = new ();
-            _tabs.CreateTab(url);
+            public uint Width;
+            public uint Height;
+        }
 
-            Vector2i dimensions = Window.FixDimensions(width, height);
-            Shader.Orthogonal = Matrix4.CreateOrthographicOffCenter(0, dimensions.X, dimensions.Y, 0, -1, 1);
+        private string _title = "New Window - Rogue";
 
-            if (this.TryGetCurrentMonitorDpi(out float dpi, out _))
+        private WindowDimensions _dimensions;
+
+        // private TabManager _tabs; TODO: uncomment when new graphics backend is done
+
+        public Window(uint width, uint height, string url = "")
+        {
+            _dimensions = new ()
             {
-                Window.HorizontalDpi = dpi;
-            } else
+                Width = width,
+                Height = height
+            };
+        }
+
+        public void Init(Application app, string[] args)
+        {
+            WindowControl layout = new ()
             {
-                Console.WriteLine("DPI not found!");
-            }
-        }
+                Title = _title,
+                Width = _dimensions.Width,
+                Height = _dimensions.Height,
+                Position = PixelPoint.Origin,
+                Content = new TextBlock ()
+                {
+                    Text = "Hello There!",
+                    FontSize = 12
+                }
+            };
 
-        protected override void OnLoad()
-        {
-            base.OnLoad();
-
-            GL.Enable(EnableCap.DepthTest);
-
-            GL.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        }
-
-        protected override void OnRenderFrame(FrameEventArgs args)
-        {
-            base.OnRenderFrame(args);
-
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            WebPage currentPage = (WebPage) _tabs.Current;
-            currentPage.RenderPage();
-
-            SwapBuffers();
-        }
-
-        protected override void OnUnload()
-        {
-            base.OnUnload();
-
-            WebPage currentPage = (WebPage) _tabs.Current;
-            currentPage.CleanUp();
-        }
-
-        protected override void OnMouseUp(MouseButtonEventArgs e)
-        {
-            base.OnMouseUp(e);
-
-            WebPage currentPage = (WebPage) _tabs.Current;
-            Vector2 pos = this.MousePosition;
-            currentPage.RegisterClick(new (Convert.ToInt32(pos.X), Convert.ToInt32(pos.Y)));
-        }
-
-        private static Vector2i FixDimensions(int width, int height)
-        {
-            int newWidth = width % 2 == 0 ? width : width - 1;
-            int newHeight = height % 2 == 0 ? height : height - 1;
-
-            return new (newWidth, newHeight);
+            layout.Show();
+            app.Run(layout);
         }
     }
 }
