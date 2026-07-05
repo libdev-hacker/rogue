@@ -5,7 +5,7 @@ using Rogue.JS;
 using Rogue.JS.DOM;
 using Rogue.Utils;
 
-namespace Rogue
+namespace Rogue.Manager
 {
     public class WebPage
     {

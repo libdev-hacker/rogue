@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace Rogue
+namespace Rogue.Manager
 {
     public class TabManager: IEnumerable<WebPage>
     {
