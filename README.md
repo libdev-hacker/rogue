@@ -58,7 +58,7 @@ If you leave the URL argument blank, you will be redirected to Rogue's default b
 
 ## Roadmap
 
-- [ ] Overhaul Graphics Backend
+- [ ] Overhaul Graphics Backend (W.I.P on this branch)
 - [ ] New Text Renderer
 - [ ] Full HTML Spec Support
 - [ ] Implement CSS Support
