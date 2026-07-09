@@ -16,4 +16,8 @@
     <ProjectReference Include="../Rogue.Manager/Rogue.Manager.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="..\..\assets\libraries\EGL\libEGL-linux.so" Condition="$([System.OperatingSystem]::IsLinux())" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
