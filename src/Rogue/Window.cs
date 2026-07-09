@@ -1,7 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
 
-// using Rogue.Manager;
+using Rogue.Controls;
+using Rogue.Graphics.Backends;
+using Rogue.Manager;
 
 using WindowControl = Avalonia.Controls.Window;
 
@@ -19,7 +21,9 @@ namespace Rogue
 
         private WindowDimensions _dimensions;
 
-        // private TabManager _tabs; TODO: uncomment when new graphics backend is done
+        private readonly EglInfo _egl = new ();
+
+        private readonly TabManager _tabs;
 
         public Window(uint width, uint height, string url = "")
         {
@@ -28,6 +32,11 @@ namespace Rogue
                 Width = width,
                 Height = height
             };
+
+            OpenGLInfo info = new (_egl.GetOpenGLInfo(), width, height);
+            _tabs = new (info);
+
+            _tabs.CreateTab(url, true);
         }
 
         public void Init(Application app, string[] args)
@@ -38,10 +47,11 @@ namespace Rogue
                 Width = _dimensions.Width,
                 Height = _dimensions.Height,
                 Position = PixelPoint.Origin,
-                Content = new TextBlock ()
+                Content = new OpenGlCanvas()
                 {
-                    Text = "Hello There!",
-                    FontSize = 12
+                    PlatformInfo = _egl.GetOpenGLInfo(),
+                    Fbo = _tabs.Graphics?.SwapchainFramebuffer ?? throw new Exception("No Swapchain found"),
+                    BackendInfo = _tabs.Graphics.GetOpenGLInfo()
                 }
             };
 
