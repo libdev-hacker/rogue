@@ -1,9 +1,14 @@
 using System.Collections;
 
+using Veldrid;
+
+using Rogue.Graphics.Backends;
+
 namespace Rogue.Manager
 {
     public class TabManager: IEnumerable<WebPage>
     {
+        public GraphicsDevice? Graphics;
 
         public LinkedListNode<WebPage> Current { get; private set; }
 
@@ -15,6 +20,11 @@ namespace Rogue.Manager
             _webpages.AddFirst(newPage);
             
             this.Current = newPage;
+        }
+
+        public TabManager(in OpenGLInfo graphicsOpts): this()
+        {
+            this.Graphics = GraphicsDevice.CreateOpenGL(graphicsOpts.Opts, graphicsOpts.Info, graphicsOpts.Width, graphicsOpts.Height);
         }
 
         public void CreateTab(string url, bool switchTabs = false)
