@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../../libs/Veldrid/src/Veldrid/Veldrid.csproj" />
     <ProjectReference Include="../Rogue.Graphics/Rogue.Graphics.csproj" />
     <ProjectReference Include="../Rogue.HTML/Rogue.HTML.csproj" />
     <ProjectReference Include="../Rogue.JS.DOM/Rogue.JS.DOM.csproj" />
