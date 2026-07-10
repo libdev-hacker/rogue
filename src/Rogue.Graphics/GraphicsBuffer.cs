@@ -1,22 +1,30 @@
-using OpenTK.Graphics.OpenGL4;
+
+using Veldrid;
 
 namespace Rogue.Graphics
 {
-    public struct GraphicsBuffer
+    public static class GraphicsBuffer
     {
-        public int Handle { get; }
+        public static readonly GraphicsBuffer<uint> Indices = new (
+            [0, 1, 3, 1, 2, 3], // From LearnOpenGL
+            BufferUsage.IndexBuffer
+        );
+    }
 
-        public BufferTarget BufferType { get; }
+    public struct GraphicsBuffer<T> (
+        T[] data,
+        BufferUsage type
+    ) where T: unmanaged
+    {
+        public T[] BufferData = data;
 
-        public static uint[] Indices = [
-            0, 1, 3,
-            1, 2, 3
-        ]; // From LearnOpenGL
+        public BufferUsage Type = type;
 
-        public GraphicsBuffer(BufferTarget kind)
-        {
-            this.Handle = GL.GenBuffer();
-            this.BufferType = kind;
-        }
+        private unsafe uint _size = Convert.ToUInt32(sizeof(T) * data.Length);
+
+        public BufferDescription Describe() => new (
+            _size,
+            this.Type
+        );
     }
 }
