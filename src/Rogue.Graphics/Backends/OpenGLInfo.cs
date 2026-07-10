@@ -13,7 +13,8 @@ namespace Rogue.Graphics.Backends
         public GraphicsDeviceOptions Opts { get; init; } = new ()
         {
             PreferStandardClipSpaceYDirection = true,
-            PreferDepthRangeZeroToOne = true
+            PreferDepthRangeZeroToOne = true,
+            Debug = true
         }; // Defaults taken from veldrid.dev tutorial
 
         public OpenGLPlatformInfo Info { get; } = info;
