@@ -68,7 +68,7 @@ namespace Rogue
             this.SetContext,
             _interface.GetCurrentContext,
             () => this.SetContext(nint.Zero),
-            (context) => _interface.DestroyContext(_interface.GetCurrentDisplay(), context),
+            (context) => _interface.DestroyContext(_display.Handle, context),
             this.SwapBuffer,
             this.SwapInterval
         );
@@ -83,7 +83,7 @@ namespace Rogue
 
         private void SetContext(nint context)
         {
-            nint currentDisplay = _interface.GetCurrentDisplay();
+            nint currentDisplay = _display.Handle;
             nint currentSurface = _context.OffscreenSurface?.DangerousGetHandle() ?? throw new Exception($"Cannot get egl handle: {_interface.GetError()}");
             if (context == nint.Zero)
             {
@@ -96,14 +96,14 @@ namespace Rogue
 
         private void SwapBuffer()
         {
-            nint currentDisplay = _interface.GetCurrentDisplay();
+            nint currentDisplay = _display.Handle;
             nint surface = _context.OffscreenSurface?.DangerousGetHandle() ?? throw new Exception($"Cannot get egl handle: {_interface.GetError()}");
             _interface.SwapBuffers(currentDisplay, surface);
         }
 
         private void SwapInterval(bool shouldSync)
         {
-            nint currentDisplay = _interface.GetCurrentDisplay();
+            nint currentDisplay = _display.Handle;
             _interface.SwapInterval(currentDisplay, shouldSync ? 1 : 0);
         }
     }
