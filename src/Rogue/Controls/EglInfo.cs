@@ -73,6 +73,18 @@ namespace Rogue
             this.SwapInterval
         );
 
+        public string GetNativeInfo()
+        {
+            // Constants found in https://github.com/AvaloniaUI/Avalonia/blob/main/src/Avalonia.OpenGL/Egl/EglConsts.cs
+            const int vendorId = 0x3053;
+            const int versionId = 0x3054;
+
+            string? vendorString = _interface.QueryString(_display.Handle, vendorId);
+            string? versionString = _interface.QueryString(_display.Handle, versionId);
+
+            return $"EGL {versionString} {vendorString}";
+        }
+
         private nint GetProcAddress(string methodName) // Adapted from https://github.com/AvaloniaUI/Avalonia/blob/master/src/Avalonia.OpenGL/GlInterface.cs
         {
             nint rawMethodName = Marshal.StringToHGlobalAnsi(methodName);
