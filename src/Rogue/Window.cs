@@ -2,8 +2,11 @@ using Avalonia;
 using Avalonia.Controls;
 
 using Rogue.Controls;
+using Rogue.Graphics;
 using Rogue.Graphics.Backends;
 using Rogue.Manager;
+
+using Veldrid;
 
 using WindowControl = Avalonia.Controls.Window;
 
@@ -33,9 +36,18 @@ namespace Rogue
                 Height = height
             };
 
-            OpenGLInfo info = new (_egl.GetOpenGLInfo(), width, height);
-            _tabs = new (info);
+            GraphicsDeviceOptions opts = new ()
+            {
+                PreferStandardClipSpaceYDirection = true,
+                PreferDepthRangeZeroToOne = true,
+                Debug = true
+            }; // Defaults taken from veldrid.dev tutorial
 
+            OpenGLResources.Device ??= GraphicsDevice.CreateOpenGL(opts, _egl.GetOpenGLInfo(), width, height);
+
+            Window.SetupDevice(OpenGLResources.Device);
+
+            _tabs = new ();
             _tabs.CreateTab(url, true);
         }
 
@@ -49,14 +61,23 @@ namespace Rogue
                 Position = PixelPoint.Origin,
                 Content = new OpenGlCanvas()
                 {
-                    PlatformInfo = _egl.GetOpenGLInfo(),
-                    Fbo = _tabs.Graphics?.SwapchainFramebuffer ?? throw new Exception("No Swapchain found"),
-                    BackendInfo = _tabs.Graphics.GetOpenGLInfo()
+                    PlatformInfo = _egl.GetOpenGLInfo()
                 }
             };
 
             layout.Show();
             app.Run(layout);
+        }
+
+        public static void SetupDevice(GraphicsDevice device)
+        {
+            DeviceBuffer indexBuffer = device.ResourceFactory.CreateBuffer(GraphicsBuffer.Indices.Describe());
+            device.UpdateBuffer(indexBuffer, 0, GraphicsBuffer.Indices.BufferData);
+
+            unsafe
+            {
+                device.GetOpenGLInfo().DebugProc += OpenGlDebug.DebugCallback;
+            }
         }
     }
 }

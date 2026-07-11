@@ -11,41 +11,46 @@ using Veldrid;
 using Veldrid.OpenGL;
 using Veldrid.OpenGLBinding;
 
+using Rogue.Graphics.Backends;
+
 namespace Rogue.Controls
 {
     public class OpenGlCanvas: Control, ICustomDrawOperation
     {
         public required OpenGLPlatformInfo PlatformInfo;
 
-        public required Framebuffer Fbo;
+        private Framebuffer? _fbo = OpenGLResources.Device?.SwapchainFramebuffer;
 
-        public required BackendInfoOpenGL BackendInfo;
+        private BackendInfoOpenGL? _backendInfo = OpenGLResources.Device?.GetOpenGLInfo();
 
         public override void Render(DrawingContext context) => context.Custom(this);
 
         public void Render(ImmediateDrawingContext context)
         {
-            var feature = context.TryGetFeature<ISkiaSharpApiLeaseFeature>();
-            if (feature is null) return;
+            if (_fbo is not null && _backendInfo is not null)
+            {
+                var feature = context.TryGetFeature<ISkiaSharpApiLeaseFeature>();
+                if (feature is null) return;
 
-            using ISkiaSharpApiLease lease = feature.Lease();
-            SKCanvas canvas = lease.SkCanvas;
+                using ISkiaSharpApiLease lease = feature.Lease();
+                SKCanvas canvas = lease.SkCanvas;
 
-            GRContext oglContext = GRContext.CreateGl(GRGlInterface.CreateOpenGl(this.PlatformInfo.GetProcAddress.Invoke));
-            
-            Texture fboTexture = this.Fbo.ColorTargets[0].Target;
-            uint nativeTextureHandle = this.BackendInfo.GetTextureName(fboTexture);
-            
-            GRGlTextureInfo skiaTextureInfo = new (
-                OpenGlCanvas.ToOpenGLTarget(fboTexture.Type),
-                nativeTextureHandle
-            );
+                GRContext oglContext = GRContext.CreateGl(GRGlInterface.CreateOpenGl(this.PlatformInfo.GetProcAddress.Invoke));
+                
+                Texture fboTexture = _fbo.ColorTargets[0].Target;
+                uint nativeTextureHandle = _backendInfo.GetTextureName(fboTexture);
+                
+                GRGlTextureInfo skiaTextureInfo = new (
+                    OpenGlCanvas.ToOpenGLTarget(fboTexture.Type),
+                    nativeTextureHandle
+                );
 
-            GRBackendTexture skiaTexture = new ((int) fboTexture.Width, (int) fboTexture.Height, fboTexture.MipLevels > 0, skiaTextureInfo);
+                GRBackendTexture skiaTexture = new ((int) fboTexture.Width, (int) fboTexture.Height, fboTexture.MipLevels > 0, skiaTextureInfo);
 
-            SKImage result = SKImage.FromTexture(oglContext, skiaTexture, SKColorType.Unknown);
+                SKImage result = SKImage.FromTexture(oglContext, skiaTexture, SKColorType.Unknown);
 
-            canvas.DrawImage(result, 0, 0);
+                canvas.DrawImage(result, 0, 0);
+            }
         }
 
         private static uint ToOpenGLTarget(TextureType type) => type switch
