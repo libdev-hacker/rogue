@@ -5,8 +5,7 @@ using Avalonia.OpenGL.Egl;
 
 using Veldrid.OpenGL;
 
-
-namespace Rogue
+namespace Rogue.Controls
 {
     public class EglInfo: IDisposable
     {
