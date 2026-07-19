@@ -11,16 +11,16 @@ namespace Rogue.Graphics
         );
     }
 
-    public struct GraphicsBuffer<T> (
+    public readonly struct GraphicsBuffer<T> (
         T[] data,
         BufferUsage type
     ) where T: unmanaged
     {
-        public T[] BufferData = data;
+        public readonly T[] BufferData { get; } = data;
 
-        public BufferUsage Type = type;
+        public readonly BufferUsage Type { get; } = type;
 
-        private unsafe uint _size = Convert.ToUInt32(sizeof(T) * data.Length);
+        private unsafe readonly uint _size = Convert.ToUInt32(sizeof(T) * data.Length);
 
         public BufferDescription Describe() => new (
             _size,
