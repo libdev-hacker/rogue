@@ -26,5 +26,7 @@ namespace Rogue.Graphics
             _size,
             this.Type
         );
+
+        public uint GetByteOffset(int index) => Convert.ToUInt32(_size * (Convert.ToSingle(index) / this.BufferData.Length));
     }
 }
