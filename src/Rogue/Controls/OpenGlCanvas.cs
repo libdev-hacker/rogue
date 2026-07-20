@@ -35,7 +35,7 @@ namespace Rogue.Controls
                 using ISkiaSharpApiLease lease = feature.Lease();
                 SKCanvas canvas = lease.SkCanvas;
 
-                GRContext oglContext = GRContext.CreateGl(GRGlInterface.CreateOpenGl(this.PlatformInfo.GetProcAddress.Invoke));
+                using GRContext oglContext = GRContext.CreateGl(GRGlInterface.CreateOpenGl(this.PlatformInfo.GetProcAddress.Invoke));
                 
                 Texture fboTexture = _fbo.ColorTargets[0].Target;
                 uint nativeTextureHandle = _backendInfo.GetTextureName(fboTexture);
@@ -45,9 +45,9 @@ namespace Rogue.Controls
                     nativeTextureHandle
                 );
 
-                GRBackendTexture skiaTexture = new ((int) fboTexture.Width, (int) fboTexture.Height, fboTexture.MipLevels > 0, skiaTextureInfo);
+                using GRBackendTexture skiaTexture = new ((int) fboTexture.Width, (int) fboTexture.Height, fboTexture.MipLevels > 0, skiaTextureInfo);
 
-                SKImage result = SKImage.FromTexture(oglContext, skiaTexture, SKColorType.Unknown);
+                using SKImage result = SKImage.FromTexture(oglContext, skiaTexture, SKColorType.Unknown);
 
                 canvas.DrawImage(result, 0, 0);
             }
