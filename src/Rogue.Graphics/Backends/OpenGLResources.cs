@@ -21,7 +21,8 @@ namespace Rogue.Graphics.Backends
                 FrontFace.CounterClockwise, // OpenGL uses Counter-Clockwise by default
                 false,
                 false
-            )
+            ),
+            PrimitiveTopology = PrimitiveTopology.TriangleList
         };
     }
 }
