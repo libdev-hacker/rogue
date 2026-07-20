@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Controls;
 
 using Rogue.Controls;
-using Rogue.Graphics;
 using Rogue.Graphics.Backends;
 using Rogue.Manager;
 
@@ -28,7 +27,7 @@ namespace Rogue
 
         private readonly TabManager _tabs;
 
-        public Window(uint width, uint height, string url = "")
+        public unsafe Window(uint width, uint height, string url = "")
         {
             _dimensions = new ()
             {
@@ -45,7 +44,7 @@ namespace Rogue
 
             OpenGLResources.Device ??= GraphicsDevice.CreateOpenGL(opts, _egl.GetOpenGLInfo(), width, height);
 
-            Window.SetupDevice(OpenGLResources.Device);
+            OpenGLResources.Device.GetOpenGLInfo().DebugProc += OpenGlDebug.DebugCallback;
 
             _tabs = new ();
             _tabs.CreateTab(url, true);
@@ -67,17 +66,6 @@ namespace Rogue
 
             layout.Show();
             app.Run(layout);
-        }
-
-        public static void SetupDevice(GraphicsDevice device)
-        {
-            DeviceBuffer indexBuffer = device.ResourceFactory.CreateBuffer(GraphicsBuffer.Indices.Describe());
-            device.UpdateBuffer(indexBuffer, 0, GraphicsBuffer.Indices.BufferData);
-
-            unsafe
-            {
-                device.GetOpenGLInfo().DebugProc += OpenGlDebug.DebugCallback;
-            }
         }
     }
 }
