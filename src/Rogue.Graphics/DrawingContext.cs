@@ -1,158 +1,143 @@
-using OpenTK.Graphics.OpenGL4;
+
+using Veldrid;
+
+using Rogue.Graphics.Backends;
+
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+
+using System.Diagnostics.CodeAnalysis;
 
 namespace Rogue.Graphics
 {
     public class DrawingContext: IDisposable
     {
-        public int Shader { get; private set; } = -1;
+        [AllowNull]
+        public ShaderProgram Shader { get; private set; }
 
-        public IDictionary<string, int> Textures { get => _textures.AsReadOnly(); }
-        
-        public int Vbo { get; private set; }
-        
-        public int? Ebo { get; private set; }
+        public GraphicsBuffer<float> VertexBuffer { get; private set; }
 
-        public ref float[]? Coords { get => ref _coords; }
+        public CommandList Commands { get; }
 
-        public bool IsBuffersSet { get => !(this.Vbo == default || this.Ebo == default); }
+        public Texture[] Textures { get => [.. _textures.Values]; }
 
-        public readonly int Vao = GL.GenVertexArray();
+        public List<ResourceLayoutElementDescription> LayoutElements = [];
 
-        private Dictionary<string, int> _textures = [];
+        public List<BindableResource> Resources = [];
 
-        private float[]? _coords;
+        private Dictionary<string, Texture> _textures = [];
+
+        private GraphicsDevice _device = OpenGLResources.Device ?? throw new Exception("GraphicsDevice not instantiated yet!"); // Easy alias
+
+        private DeviceBuffer _indexBuffer;
 
         private bool _disposed;
 
+        public DrawingContext()
+        {
+            this.Commands = _device.ResourceFactory.CreateCommandList();
+            this.Commands.Begin();
+
+            GraphicsBuffer<uint> indexCpuBuffer = GraphicsBuffer.Indices;
+            _indexBuffer = _device.ResourceFactory.CreateBuffer(GraphicsBuffer.Indices.Describe());
+            _device.UpdateBuffer(_indexBuffer, indexCpuBuffer.GetByteOffset(0), indexCpuBuffer.BufferData);
+
+            this.Commands.SetIndexBuffer(_indexBuffer, IndexFormat.UInt32);
+        }
+
         ~DrawingContext() => Dispose(false);
 
-        public void DrawElement()
+        public void SetCoordinates(float[] coords)
         {
-            if (GL.IsVertexArray(this.Vao))
-            {
-                GL.DrawElements(BeginMode.Triangles, GraphicsBuffer.Indices.Length, DrawElementsType.UnsignedInt, 0);
-            }
+            GraphicsBuffer<float> vertexBuffer = new (coords, BufferUsage.VertexBuffer);
+
+            DeviceBuffer buffer = _device.ResourceFactory.CreateBuffer(vertexBuffer.Describe());
+            _device.UpdateBuffer(buffer, vertexBuffer.GetByteOffset(0), coords);
+
+            this.Commands.SetVertexBuffer(0, buffer);
+            this.VertexBuffer = vertexBuffer;
         }
 
-        public void AddTexture(string name, int handle)
-        {
-            _textures.Add(name, handle);
-        }
+        public void AddShaders(string vertexShader, string fragShader) => this.Shader = new (vertexShader, fragShader, _device.ResourceFactory);
 
-        public void AddShader(int handle)
-        {
-            this.Shader = handle;
-        }
-
-        public void AddCoordinates(float[] coords)
-        {
-            _coords ??= coords;
-        }
-
-        public void AddVertexBufferObject(GraphicsBuffer buffer)
-        {
-            if (buffer.BufferType == BufferTarget.ArrayBuffer)
-            {
-                this.Vbo = buffer.Handle;
-            }
-        }
-
-        public void AddElementBufferObject(GraphicsBuffer buffer)
-        {
-            if (buffer.BufferType == BufferTarget.ElementArrayBuffer)
-            {
-                this.Ebo ??= buffer.Handle;
-            }
-        }
-
-        public void AddAttributePointer(int index, int count, VertexAttribPointerType type, int stride, int offset = 0)
-        {
-            GL.VertexAttribPointer(index, count, type, false, stride, offset);
-            GL.EnableVertexAttribArray(index);
-        }
-
-        public void UseShader()
-        {
-           GL.UseProgram(this.Shader);
-        }
+        public void AddTexture(Texture texture) => _textures.Add(texture.Name!, texture);
 
         public void BindTexture(string name)
         {
-            if (_textures is not null)
-            {
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, _textures[name]);
-            }
+            this.LayoutElements.Add(new ("texture", ResourceKind.TextureReadOnly, ShaderStages.Fragment));
+
+            Texture selectedTexture = _textures[name];
+            TextureView view = _device.ResourceFactory.CreateTextureView(selectedTexture);
+            this.Resources.Add(view);
         }
 
-        public void BindBuffer(BufferTarget target)
+        public unsafe Image<Rgba32> GetImageFromTexture(string name, bool readOnly = true)
         {
-            if (target == BufferTarget.ArrayBuffer && _coords is not null)
-            {
-                GL.BindBuffer(target, this.Vbo);
-                GL.BufferData(target, _coords.Length * sizeof(float), _coords, BufferUsageHint.DynamicDraw);
-            } else if (target == BufferTarget.ElementArrayBuffer)
-            {
-                if (this.Ebo is not null)
-                {
-                    GL.BindBuffer(target, (int)this.Ebo); // More annoying
-                    GL.BufferData(target, GraphicsBuffer.Indices.Length * sizeof(uint), GraphicsBuffer.Indices, BufferUsageHint.StaticDraw);
-                }
-            }
+            Texture target = _textures[name];
+            MappedResource mappedImage = _device.Map(target, readOnly ? MapMode.Read : MapMode.ReadWrite);
+
+            return Image.WrapMemory<Rgba32>(mappedImage.Data.ToPointer(), (int) mappedImage.SizeInBytes, (int) target.Width, (int) target.Height);
         }
 
-        public void BindVao()
+        private Pipeline SetupPipeline()
         {
-            GL.BindVertexArray(this.Vao);
+            GraphicsPipelineDescription pipeline = OpenGLResources.CreatePipeline();
+            pipeline.Outputs = _device.SwapchainFramebuffer?.OutputDescription ?? throw new Exception("No SwapchainFramebuffer found");
+
+            ResourceLayoutDescription layoutDescription = new ([.. this.LayoutElements]);
+            pipeline.ResourceLayouts = [_device.ResourceFactory.CreateResourceLayout(layoutDescription)];
+
+            ShaderSetDescription shaders = new (null, this.Shader.ToArray());
+            pipeline.ShaderSet = shaders;
+
+            return _device.ResourceFactory.CreateGraphicsPipeline(pipeline);
+        }
+
+        public static void InitFrame(CommandList commands)
+        {
+            commands.SetFramebuffer(OpenGLResources.Device?.SwapchainFramebuffer ?? throw new Exception("No SwapChain found"));
+            commands.ClearColorTarget(0, RgbaFloat.White);
+        }
+
+        public void DrawElement()
+        {
+            this.Commands.SetPipeline(this.SetupPipeline());
+
+            ResourceLayout layout = _device.ResourceFactory.CreateResourceLayout(new ([.. this.LayoutElements]));
+            ResourceSet set = _device.ResourceFactory.CreateResourceSet(new (layout, [.. this.Resources]));
+            this.Commands.SetGraphicsResourceSet(0, set);
+
+            this.Commands.Draw((uint) this.VertexBuffer.BufferData.Length);
         }
 
         public void Dispose()
         {
-            // Disposing of object
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        public virtual void Dispose(bool disposing)
+        public virtual void Dispose(bool dispose)
         {
-            if (!_disposed)
+            if (_disposed) return;
+
+            if (dispose)
             {
-                if (disposing)
+                this.Commands.Dispose();
+
+                _indexBuffer.Dispose();
+                
+                foreach (Texture texture in this.Textures)
                 {
-                    // Disposing of OpenGL resources
-                    GL.Finish();
-                    GL.DeleteBuffer(this.Vao);
+                    texture.Dispose();
+                }
 
-                    if (_textures is not null)
-                    {
-                        foreach (int texture in _textures.Values)
-                        {
-                            GL.DeleteTexture(texture);
-                        }
-                    }
-
-                    _textures?.Clear();
-
-                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-                    GL.DeleteBuffer(this.Vbo);
-
-                    this.Vbo = 0;
-
-                    if (this.Ebo is not null)
-                    {
-                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-                        GL.DeleteBuffer((int)this.Ebo);
-                        this.Ebo = 0;
-                    }
-
-                    GL.DeleteProgram(this.Shader);
-                    this.Shader = 0;
-
-                    _coords = null;
-
-                    _disposed = true;
+                foreach (Shader shader in this.Shader.ToArray())
+                {
+                    shader.Dispose();
                 }
             }
+
+            _disposed = true;
         }
     }
 }
