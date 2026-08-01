@@ -95,7 +95,7 @@ namespace Rogue.Controls
         private void SetContext(nint context)
         {
             nint currentDisplay = _display.Handle;
-            nint currentSurface = _context.OffscreenSurface?.DangerousGetHandle() ?? throw new Exception($"Cannot get egl handle: {_interface.GetError()}");
+            nint currentSurface = _interface.GetCurrentSurface(0);
             if (context == nint.Zero)
             {
                 _interface.MakeCurrent(currentDisplay, context, context, context);
