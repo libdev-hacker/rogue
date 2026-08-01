@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="../../libs/Veldrid/src/Veldrid.ImageSharp/Veldrid.ImageSharp.csproj" />
     <ProjectReference Include="../../libs/Veldrid/src/Veldrid/Veldrid.csproj" />
+    <ProjectReference Include="../Rogue.Utils/Rogue.Utils.csproj" />
   </ItemGroup>
 
 </Project>
