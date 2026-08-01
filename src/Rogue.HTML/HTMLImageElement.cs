@@ -26,49 +26,6 @@ namespace Rogue.HTML
 
         public override void Draw()
         {
-            bool isImage = _image is not null;
-            bool isAltText = _altText is not null && _altText.Text != "";
-
-            // Determining what should be rendered
-            if (!isImage && !isAltText)
-            {
-                FetchImage().GetAwaiter().GetResult();
-                if (_image is not null)
-                {
-                    this.Dimensions = new Vector2i(_image.Width, _image.Height);
-                } else if (_altText is not null)
-                {
-                    this.Dimensions = TextRenderer.MeasureText(_altText.Text);
-                }
-                this.Renderer.AddCoordinates(this.Container.GetCoords(this.Depth));
-            }
-
-            // Creating the OpenGL texture
-            string id = "";
-            if (isImage)
-            {
-                id = Convert.ToString(this.GetHashCode());
-            } else if (isAltText)
-            {
-                id = _altText!.Text;
-            }
-
-            if (!this.Renderer.Textures.ContainsKey(id) && this.Renderer.Coords is not null)
-            {
-                int texture = 0;
-                if (isImage)
-                {
-                    texture = Texture.CreateTexture(_image!, ref this.Renderer.Coords);
-                } else if (isAltText)
-                {
-                    texture = TextRenderer.CreateText(_altText!.Text, ref this.Renderer.Coords);
-                }
-                this.Renderer.AddTexture(id, texture);
-            }
-
-            this.Renderer.BindTexture(id);
-
-            base.Draw();
         }
 
         public new void EndDraw()

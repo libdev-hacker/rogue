@@ -19,20 +19,6 @@ namespace Rogue.HTML
 
         public override void Draw()
         {
-            this.Dimensions = TextRenderer.MeasureText(_textContainer.Text);
-            this.Renderer.AddCoordinates(this.Container.GetCoords(this.Depth));
-
-            string id = Convert.ToString(this.GetHashCode());
-
-            if (!this.Renderer.Textures.ContainsKey(id) && this.Renderer.Coords is not null)
-            {
-                int renderedText = TextRenderer.CreateText(_textContainer.Text, ref this.Renderer.Coords, Color.Grey);
-                this.Renderer.AddTexture(id, renderedText);
-            }
-
-            this.Renderer.BindTexture(id);
-
-            base.Draw();
         }
 
         public override void Click(JsEngine? engine = null)
