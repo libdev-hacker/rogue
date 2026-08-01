@@ -1,4 +1,7 @@
+
 using System.Collections;
+
+using Rogue.Graphics.Text;
 
 namespace Rogue.Manager
 {
@@ -7,6 +10,8 @@ namespace Rogue.Manager
         public LinkedListNode<WebPage> Current { get; private set; }
 
         private LinkedList<WebPage> _webpages = new ();
+
+        public static readonly CharacterLoader Characters = CharacterLoader.LoadDefaultFont();
 
         public TabManager()
         {
