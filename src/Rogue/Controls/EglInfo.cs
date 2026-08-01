@@ -19,6 +19,8 @@ namespace Rogue.Controls
 
         private EglContext _context;
 
+        private EglSurface _surface;
+
         private bool _disposed;
 
         public EglInfo()
@@ -33,6 +35,7 @@ namespace Rogue.Controls
             });
 
             _context = _display.CreateContext(null);
+            _surface = new (_display, _context.OffscreenSurface?.DangerousGetHandle() ?? throw new Exception("Cannot get EGLSurface handle"));
         }
 
         private static string GetLibraryPath()
@@ -62,13 +65,13 @@ namespace Rogue.Controls
         }
 
         public OpenGLPlatformInfo GetOpenGLInfo() => new (
-            _interface.GetCurrentContext(),
+            _context.Context,
             this.GetProcAddress,
             this.SetContext,
             _interface.GetCurrentContext,
             () => this.SetContext(nint.Zero),
             (context) => _interface.DestroyContext(_display.Handle, context),
-            this.SwapBuffer,
+            _surface.SwapBuffers,
             this.SwapInterval
         );
 
@@ -95,7 +98,7 @@ namespace Rogue.Controls
         private void SetContext(nint context)
         {
             nint currentDisplay = _display.Handle;
-            nint currentSurface = _interface.GetCurrentSurface(0);
+            nint currentSurface = _surface.DangerousGetHandle();
             if (context == nint.Zero)
             {
                 _interface.MakeCurrent(currentDisplay, context, context, context);
@@ -103,13 +106,6 @@ namespace Rogue.Controls
             {
                 _interface.MakeCurrent(currentDisplay, currentSurface, currentSurface, context);
             }
-        }
-
-        private void SwapBuffer()
-        {
-            nint currentDisplay = _display.Handle;
-            nint surface = _context.OffscreenSurface?.DangerousGetHandle() ?? throw new Exception($"Cannot get egl handle: {_interface.GetError()}");
-            _interface.SwapBuffers(currentDisplay, surface);
         }
 
         private void SwapInterval(bool shouldSync)
