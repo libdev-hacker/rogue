@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veldrid.MetalBindings", "li
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veldrid.OpenGLBindings", "libs\Veldrid\src\Veldrid.OpenGLBindings\Veldrid.OpenGLBindings.csproj", "{693B1951-9DDA-4296-ACFD-C5ED4F2298D6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veldrid.ImageSharp", "libs\Veldrid\src\Veldrid.ImageSharp\Veldrid.ImageSharp.csproj", "{D887F643-E844-476F-A277-7DF587DE6430}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -161,6 +163,18 @@ Global
 		{693B1951-9DDA-4296-ACFD-C5ED4F2298D6}.Release|x64.Build.0 = Release|Any CPU
 		{693B1951-9DDA-4296-ACFD-C5ED4F2298D6}.Release|x86.ActiveCfg = Release|Any CPU
 		{693B1951-9DDA-4296-ACFD-C5ED4F2298D6}.Release|x86.Build.0 = Release|Any CPU
+		{D887F643-E844-476F-A277-7DF587DE6430}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D887F643-E844-476F-A277-7DF587DE6430}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D887F643-E844-476F-A277-7DF587DE6430}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D887F643-E844-476F-A277-7DF587DE6430}.Debug|x64.Build.0 = Debug|Any CPU
+		{D887F643-E844-476F-A277-7DF587DE6430}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D887F643-E844-476F-A277-7DF587DE6430}.Debug|x86.Build.0 = Debug|Any CPU
+		{D887F643-E844-476F-A277-7DF587DE6430}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D887F643-E844-476F-A277-7DF587DE6430}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D887F643-E844-476F-A277-7DF587DE6430}.Release|x64.ActiveCfg = Release|Any CPU
+		{D887F643-E844-476F-A277-7DF587DE6430}.Release|x64.Build.0 = Release|Any CPU
+		{D887F643-E844-476F-A277-7DF587DE6430}.Release|x86.ActiveCfg = Release|Any CPU
+		{D887F643-E844-476F-A277-7DF587DE6430}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -178,5 +192,6 @@ Global
 		{A648592D-62D9-49FE-8A87-DC78C0F2A510} = {86A8EBF6-65FD-AEAF-EFC4-6901EEC80110}
 		{C4BDCED7-4874-4C2D-B736-35E4A35F5F70} = {86A8EBF6-65FD-AEAF-EFC4-6901EEC80110}
 		{693B1951-9DDA-4296-ACFD-C5ED4F2298D6} = {86A8EBF6-65FD-AEAF-EFC4-6901EEC80110}
+		{D887F643-E844-476F-A277-7DF587DE6430} = {86A8EBF6-65FD-AEAF-EFC4-6901EEC80110}
 	EndGlobalSection
 EndGlobal
