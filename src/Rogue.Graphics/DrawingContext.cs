@@ -6,14 +6,11 @@ using Rogue.Graphics.Backends;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Rogue.Graphics
 {
     public class DrawingContext: IDisposable
     {
-        [AllowNull]
-        public ShaderProgram Shader { get; private set; }
+        public ShaderProgram? Shader { get; private set; }
 
         public GraphicsBuffer<float> VertexBuffer { get; private set; }
 
@@ -58,7 +55,7 @@ namespace Rogue.Graphics
             this.VertexBuffer = vertexBuffer;
         }
 
-        public void AddShaders(string vertexShader, string fragShader) => this.Shader = new (vertexShader, fragShader, _device.ResourceFactory);
+        public void AddShaders(string vertexShader, string fragShader) => this.Shader ??= new (vertexShader, fragShader, _device.ResourceFactory);
 
         public void AddTexture(Texture texture) => _textures.Add(texture.Name!, texture);
 
@@ -87,7 +84,7 @@ namespace Rogue.Graphics
             ResourceLayoutDescription layoutDescription = new ([.. this.LayoutElements]);
             pipeline.ResourceLayouts = [_device.ResourceFactory.CreateResourceLayout(layoutDescription)];
 
-            ShaderSetDescription shaders = new (null, this.Shader.ToArray());
+            ShaderSetDescription shaders = new (null, this.Shader!.ToArray());
             pipeline.ShaderSet = shaders;
 
             return _device.ResourceFactory.CreateGraphicsPipeline(pipeline);
@@ -131,7 +128,7 @@ namespace Rogue.Graphics
                     texture.Dispose();
                 }
 
-                foreach (Shader shader in this.Shader.ToArray())
+                foreach (Shader shader in this.Shader!.ToArray())
                 {
                     shader.Dispose();
                 }
