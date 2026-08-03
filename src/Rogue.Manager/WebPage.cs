@@ -1,9 +1,12 @@
 using OpenTK.Mathematics;
 
+using Rogue.Graphics.Backends;
 using Rogue.HTML;
 using Rogue.JS;
 using Rogue.JS.DOM;
 using Rogue.Utils;
+
+using Veldrid;
 
 namespace Rogue.Manager
 {
@@ -13,13 +16,15 @@ namespace Rogue.Manager
 
         private HTMLDocument _htmlDoc = new ();
 
-        private WebClient _client;
+        private bool _isDocLoaded = false;
 
-        private string? _html;
+        private WebClient _client;
 
         private JsEngine _js = new ();
 
         private JsDocument _jsDocument;
+
+        private GraphicsDevice? _device = OpenGLResources.Device;
 
         public WebPage(string url = "")
         {
@@ -36,24 +41,36 @@ namespace Rogue.Manager
 
         public void RenderPage()
         {
-            if (_client.Uri.AbsoluteUri != WebClient.BlankPage)
-            {
-                _html ??= _client.GetResource("/", null);
+            string blankPagePath = Path.GetDirectoryName(Environment.ProcessPath) + "/blank.html";
+            string url = _client.Uri.AbsoluteUri;
 
-            } else
+            if (!_isDocLoaded)
             {
-                string? path = Path.GetDirectoryName(Environment.ProcessPath) + "/blank.html" ?? throw new Exception("Blank File no found!");
-                _html ??= File.ReadAllText(path);
+                string? html = url != WebClient.BlankPage ? _client.GetResource("/", null) : File.ReadAllText(blankPagePath);
+
+                if (html == "" || html is null) return; // Temporary way of handling a blank page / bad path
+
+                _htmlDoc = HTMLDocument.ParseDocument(html, _js);
             }
 
-            if (_html is null) return; // Temporary way of handling a blank page / bad path
+            Framebuffer? fbo = OpenGLResources.MainFrameBuffer;
 
-            if (!_htmlDoc.Loaded) _htmlDoc.ParseDocument(_html, _js);
+            using CommandList? commands = _device?.ResourceFactory.CreateCommandList();
+            commands?.Begin();
+
+            commands?.SetFramebuffer(fbo!);
+            commands?.ClearColorTarget(0, RgbaFloat.White);
 
             foreach (HTMLElement element in _htmlDoc)
             {
                 element.Draw();
             }
+
+            commands?.End();
+
+            _device?.SubmitCommands(commands!);
+            _device?.SwapBuffers();
+            _device?.WaitForIdle();
         }
 
         public void RegisterClick(Vector2i clickPoint)

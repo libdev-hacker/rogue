@@ -9,45 +9,48 @@ namespace Rogue.HTML
     {
         public HTMLElement? Root { get; private set; }
 
-        public bool Loaded { get; private set; }
+        public string Content { get; } = "";
 
-        private XmlTextReader? _reader;
+        public HTMLDocument() {}
 
-        private HTMLElement _current = new ();
+        private HTMLDocument(string html) => this.Content = html;
 
-        public void ParseDocument(string html, JsEngine engine)
+        public static HTMLDocument ParseDocument(string html, JsEngine engine)
         {
+            HTMLDocument document = new (html);
+            HTMLElement current = new ();
+
             using (StringReader stringReader = new (html))
             {
-                using (_reader ??= new (stringReader))
+                using (XmlTextReader reader = new (stringReader))
                 {
                     try
                     {
-                        while (_reader.Read())
+                        while (reader.Read())
                         {
-                            switch (_reader.NodeType)
+                            switch (reader.NodeType)
                             {
                                 case XmlNodeType.Element:
-                                    ParseElement();
+                                    document.ParseElement(reader, current);
                                     break;
                                 case XmlNodeType.Text:
-                                    _current.AddText(_reader.Value);
+                                    current.AddText(reader.Value);
                                     break;
                                 case XmlNodeType.EndElement:
-                                    if (_current is HTMLScriptElement script) script.RunScript(engine);
-                                    if (!_current.IsRoot) _current = _current.Parent;
-                                    _reader.ResetState();
+                                    if (current is HTMLScriptElement script) script.RunScript(engine);
+                                    if (!current.IsRoot) current = current.Parent;
+                                    reader.ResetState();
                                     break;
                             }
                         }
                     }
                     catch (XmlException e)
                     {
-                        if (_reader.EOF && !e.Message.Contains("closed")) throw;
+                        if (reader.EOF && !e.Message.Contains("closed")) throw;
                     }
                 }
             }
-            this.Loaded = true;
+            return document;
         }
 
         public HTMLElement[] SearchTree(string property, PropertyType propertyType)
@@ -84,24 +87,24 @@ namespace Rogue.HTML
             return foundElements;
         }
 
-        private void ParseElement()
+        internal void ParseElement(XmlTextReader reader, HTMLElement current)
         {
-            if (_reader is not null)
+            if (reader is not null)
             {
-                string name = _reader.Name;
+                string name = reader.Name;
                 HTMLElement element = GetElementType(name);
-                element.PopulateAttributes(_reader);
+                element.PopulateAttributes(reader);
                 element.TagName = name;
 
-                if (_current.TagName == "")
+                if (current.TagName == "")
                 {
-                    _current = element;
-                    this.Root ??= _current;
+                    current = element;
+                    this.Root ??= current;
                 } else
                 {
-                    _current.AddChild(element);
-                    element.Parent = _current;
-                    if (element.HasEndTag) _current = element;
+                    current.AddChild(element);
+                    element.Parent = current;
+                    if (element.HasEndTag) current = element;
                 }
             }
         }
