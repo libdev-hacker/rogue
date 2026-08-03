@@ -7,6 +7,8 @@ namespace Rogue.Graphics.Backends
     {
         public static GraphicsDevice? Device { get; set; }
 
+        public static Framebuffer? MainFrameBuffer { get; set; }
+
         internal static GraphicsPipelineDescription CreatePipeline() => new ()
         {
             BlendState = BlendStateDescription.SingleOverrideBlend,
