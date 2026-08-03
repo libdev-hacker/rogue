@@ -9,9 +9,9 @@ using SkiaSharp;
 
 using Veldrid;
 using Veldrid.OpenGL;
-using Veldrid.OpenGLBinding;
 
 using Rogue.Graphics.Backends;
+using System.Runtime.CompilerServices;
 
 namespace Rogue.Controls
 {
@@ -19,15 +19,18 @@ namespace Rogue.Controls
     {
         public required OpenGLPlatformInfo PlatformInfo;
 
-        private Framebuffer? _fbo = OpenGLResources.Device?.SwapchainFramebuffer;
-
-        private BackendInfoOpenGL? _backendInfo = OpenGLResources.Device?.GetOpenGLInfo();
+        public required Action RenderProc;
 
         public override void Render(DrawingContext context) => context.Custom(this);
 
         public void Render(ImmediateDrawingContext context)
         {
-            if (_fbo is not null && _backendInfo is not null)
+            this.RenderProc.Invoke();
+
+            Framebuffer fbo = OpenGLResources.MainFrameBuffer ?? throw new Exception("No Framebuffer found");
+            BackendInfoOpenGL? backendInfo = OpenGLResources.Device?.GetOpenGLInfo();
+
+            if (backendInfo is not null)
             {
                 var feature = context.TryGetFeature<ISkiaSharpApiLeaseFeature>();
                 if (feature is null) return;
@@ -35,30 +38,45 @@ namespace Rogue.Controls
                 using ISkiaSharpApiLease lease = feature.Lease();
                 SKCanvas canvas = lease.SkCanvas;
 
-                using GRContext oglContext = GRContext.CreateGl(GRGlInterface.CreateOpenGl(this.PlatformInfo.GetProcAddress.Invoke));
-                
-                Texture fboTexture = _fbo.ColorTargets[0].Target;
-                uint nativeTextureHandle = _backendInfo.GetTextureName(fboTexture);
-                
-                GRGlTextureInfo skiaTextureInfo = new (
-                    OpenGlCanvas.ToOpenGLTarget(fboTexture.Type),
-                    nativeTextureHandle
+                this.PlatformInfo.MakeCurrent(this.PlatformInfo.OpenGLContextHandle);
+
+                using GRContext backendContext = GRContext.CreateGl(GRGlInterface.CreateOpenGl(this.PlatformInfo.GetProcAddress.Invoke));
+
+                Texture fboTexture = fbo.ColorTargets[0].Target;
+                uint nativeTextureHandle = backendInfo.GetTextureName(fboTexture);
+
+                using GRBackendRenderTarget skiaFboTarget = new (
+                    (int) fboTexture.Width,
+                    (int) fboTexture.Height,
+                    OpenGlCanvas.GetSampleCount(fbo.OutputDescription.SampleCount),
+                    stencilBits: 0,
+                    new GRGlFramebufferInfo(
+                        nativeTextureHandle,
+                        SKColorType.Rgba8888.ToGlSizedFormat()
+                    )
                 );
 
-                using GRBackendTexture skiaTexture = new ((int) fboTexture.Width, (int) fboTexture.Height, fboTexture.MipLevels > 0, skiaTextureInfo);
+                using SKSurface surface = SKSurface.Create(
+                    backendContext,
+                    skiaFboTarget,
+                    SKColorType.Rgba8888
+                );
 
-                using SKImage result = SKImage.FromTexture(oglContext, skiaTexture, SKColorType.Unknown);
-
-                canvas.DrawImage(result, 0, 0);
+                canvas.DrawSurface(surface, 0, 0);
             }
         }
 
-        private static uint ToOpenGLTarget(TextureType type) => type switch
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int GetSampleCount(TextureSampleCount sampleCount) => sampleCount switch
         {
-            TextureType.Texture1D => (uint) TextureTarget.Texture1D,
-            TextureType.Texture2D => (uint) TextureTarget.Texture2D,
-            TextureType.Texture3D => (uint) TextureTarget.Texture3D,
-            _ => throw new Exception("Unknown Texture Target")
+            TextureSampleCount.Count1 => 1,
+            TextureSampleCount.Count2 => 2,
+            TextureSampleCount.Count4 => 4,
+            TextureSampleCount.Count8 => 8,
+            TextureSampleCount.Count16 => 16,
+            TextureSampleCount.Count32 => 32,
+            TextureSampleCount.Count64 => 64,
+            _ => throw new Exception("Unknown Texture Sample Count")
         };
 
         public bool HitTest(Point p) => this.Bounds.Contains(p);

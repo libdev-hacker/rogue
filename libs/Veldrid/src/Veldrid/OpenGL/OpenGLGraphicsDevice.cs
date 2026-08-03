@@ -1254,7 +1254,11 @@ namespace Veldrid.OpenGL
                 {
                     if (!_workResetEvent.WaitOne(100))
                     {
+                        _makeCurrent(0);
                         continue;
+                    } else
+                    {
+                        _makeCurrent(_context);
                     }
 
                     bool hasItem;
