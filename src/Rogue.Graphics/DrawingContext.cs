@@ -71,12 +71,12 @@ namespace Rogue.Graphics
             this.Resources.Add(view);
         }
 
-        public unsafe Image<Rgba32> GetImageFromTexture(string name, bool readOnly = true)
+        public Image<Rgba32> GetImageFromTexture(string name, bool readOnly = true)
         {
             Texture target = _textures[name];
             MappedResource mappedImage = _device.Map(target, readOnly ? MapMode.Read : MapMode.ReadWrite);
 
-            return Image.WrapMemory<Rgba32>(mappedImage.Data.ToPointer(), (int) mappedImage.SizeInBytes, (int) target.Width, (int) target.Height);
+            return Image.LoadPixelData<Rgba32>(mappedImage.AsBytes(), (int) target.Width, (int) target.Height);
         }
 
         private Pipeline SetupPipeline()
