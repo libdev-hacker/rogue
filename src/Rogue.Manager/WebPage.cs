@@ -1,5 +1,6 @@
 using OpenTK.Mathematics;
 
+using Rogue.Graphics;
 using Rogue.Graphics.Backends;
 using Rogue.HTML;
 using Rogue.JS;
@@ -57,6 +58,15 @@ namespace Rogue.Manager
 
             using CommandList? commands = _device?.ResourceFactory.CreateCommandList();
             commands?.Begin();
+
+            GraphicsBuffer<uint> indexCpuBuffer = GraphicsBuffer.Indices;
+            DeviceBuffer? indexBuffer = _device?.ResourceFactory.CreateBuffer(indexCpuBuffer.Describe());
+            if (indexBuffer is not null)
+            {
+                _device?.UpdateBuffer(indexBuffer, indexCpuBuffer.GetByteOffset(0), indexCpuBuffer.BufferData);
+                commands?.SetIndexBuffer(indexBuffer, IndexFormat.UInt32);
+            }
+
 
             commands?.SetFramebuffer(fbo!);
             commands?.ClearColorTarget(0, RgbaFloat.White);

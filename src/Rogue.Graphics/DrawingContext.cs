@@ -26,7 +26,7 @@ namespace Rogue.Graphics
 
         private GraphicsDevice _device = OpenGLResources.Device ?? throw new Exception("GraphicsDevice not instantiated yet!"); // Easy alias
 
-        private DeviceBuffer _indexBuffer;
+        // private DeviceBuffer _indexBuffer;
 
         private bool _disposed;
 
@@ -35,11 +35,11 @@ namespace Rogue.Graphics
             this.Commands = _device.ResourceFactory.CreateCommandList();
             this.Commands.Begin();
 
-            GraphicsBuffer<uint> indexCpuBuffer = GraphicsBuffer.Indices;
-            _indexBuffer = _device.ResourceFactory.CreateBuffer(GraphicsBuffer.Indices.Describe());
-            _device.UpdateBuffer(_indexBuffer, indexCpuBuffer.GetByteOffset(0), indexCpuBuffer.BufferData);
+            // GraphicsBuffer<uint> indexCpuBuffer = GraphicsBuffer.Indices;
+            // _indexBuffer = _device.ResourceFactory.CreateBuffer(GraphicsBuffer.Indices.Describe());
+            // _device.UpdateBuffer(_indexBuffer, indexCpuBuffer.GetByteOffset(0), indexCpuBuffer.BufferData);
 
-            this.Commands.SetIndexBuffer(_indexBuffer, IndexFormat.UInt32);
+            // this.Commands.SetIndexBuffer(_indexBuffer, IndexFormat.UInt32);
         }
 
         ~DrawingContext() => Dispose(false);
@@ -121,7 +121,7 @@ namespace Rogue.Graphics
             {
                 this.Commands.Dispose();
 
-                _indexBuffer.Dispose();
+                // _indexBuffer.Dispose();
                 
                 foreach (Texture texture in this.Textures)
                 {
