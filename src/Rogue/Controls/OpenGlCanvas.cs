@@ -1,4 +1,6 @@
 
+using System.Runtime.CompilerServices;
+
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -11,7 +13,6 @@ using Veldrid;
 using Veldrid.OpenGL;
 
 using Rogue.Graphics.Backends;
-using System.Runtime.CompilerServices;
 
 namespace Rogue.Controls
 {
