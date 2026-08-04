@@ -25,6 +25,7 @@ namespace Rogue.Controls
 
         public void Render(ImmediateDrawingContext context)
         {
+            this.PlatformInfo.MakeCurrent(this.PlatformInfo.OpenGLContextHandle);
             this.RenderProc.Invoke();
 
             Framebuffer fbo = OpenGLResources.MainFrameBuffer ?? throw new Exception("No Framebuffer found");
@@ -37,8 +38,6 @@ namespace Rogue.Controls
 
                 using ISkiaSharpApiLease lease = feature.Lease();
                 SKCanvas canvas = lease.SkCanvas;
-
-                this.PlatformInfo.MakeCurrent(this.PlatformInfo.OpenGLContextHandle);
 
                 using GRContext backendContext = GRContext.CreateGl(GRGlInterface.CreateOpenGl(this.PlatformInfo.GetProcAddress.Invoke));
 
