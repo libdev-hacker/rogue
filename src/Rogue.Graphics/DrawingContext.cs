@@ -5,6 +5,7 @@ using Rogue.Graphics.Backends;
 
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using Rogue.Graphics.Text;
 
 namespace Rogue.Graphics
 {
@@ -25,6 +26,8 @@ namespace Rogue.Graphics
         private Dictionary<string, Texture> _textures = [];
 
         private GraphicsDevice _device = OpenGLResources.Device ?? throw new Exception("GraphicsDevice not instantiated yet!"); // Easy alias
+
+        private Texture _charAtlas = CharacterLoader.LoadDefaultFont();
 
         private bool _disposed;
 
