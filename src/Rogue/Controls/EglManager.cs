@@ -7,7 +7,7 @@ using Veldrid.OpenGL;
 
 namespace Rogue.Controls
 {
-    public class EglInfo: IDisposable
+    public class EglManager: IDisposable
     {
         private const string _eglLinux = "libEGL-linux.so";
 
@@ -23,9 +23,9 @@ namespace Rogue.Controls
 
         private bool _disposed;
 
-        public EglInfo()
+        public EglManager()
         {
-            _interface = new (EglInfo.GetLibraryPath());
+            _interface = new (EglManager.GetLibraryPath());
 
             GlVersion[] openglVersion = [new (GlProfileType.OpenGL, 4, 3, true)]; // Targetting OpenGL 4.3
             _display = new (new EglDisplayCreationOptions()
@@ -44,7 +44,7 @@ namespace Rogue.Controls
             return $"{Path.GetDirectoryName(Environment.ProcessPath)}/{libraryName}";
         }
 
-        ~EglInfo() => Dispose(false);
+        ~EglManager() => Dispose(false);
 
         public void Dispose()
         {

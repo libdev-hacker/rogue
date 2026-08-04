@@ -23,7 +23,7 @@ namespace Rogue
 
         private WindowDimensions _dimensions;
 
-        private EglInfo _egl = new ();
+        private EglManager _egl = new ();
 
         private TabManager _tabs;
 
