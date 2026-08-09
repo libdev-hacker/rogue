@@ -17,7 +17,11 @@ namespace Rogue.Manager
 
         private HTMLDocument _htmlDoc = new ();
 
-        private bool _isDocLoaded = false;
+        private bool _isLoading = false;
+
+        private bool _wait = true;
+
+        private Lock _lock = new ();
 
         private WebClient _client;
 
@@ -45,13 +49,21 @@ namespace Rogue.Manager
             string blankPagePath = Path.GetDirectoryName(Environment.ProcessPath) + "/blank.html";
             string url = _client.Uri.AbsoluteUri;
 
-            if (!_isDocLoaded)
+            if (!_isLoading)
             {
-                string? html = url != WebClient.BlankPage ? _client.GetResource("/", null) : File.ReadAllText(blankPagePath);
+                ThreadPool.QueueUserWorkItem(async (state) =>
+                {
+                    string? html = url != WebClient.BlankPage ? await _client.GetResourceAsync("/", null).ConfigureAwait(false) : File.ReadAllText(blankPagePath);
 
-                if (html == "" || html is null) return; // Temporary way of handling a blank page / bad path
+                    if (html == "" || html is null) return;
 
-                _htmlDoc = HTMLDocument.ParseDocument(html, _js);
+                    lock (_lock)
+                    {
+                        _htmlDoc = HTMLDocument.ParseDocument(html, _js);
+                        _wait = false;
+                    }
+                });
+                _isLoading = true;
             }
 
             Framebuffer? fbo = OpenGLResources.MainFrameBuffer;
@@ -61,19 +73,25 @@ namespace Rogue.Manager
 
             GraphicsBuffer<uint> indexCpuBuffer = GraphicsBuffer.Indices;
             DeviceBuffer? indexBuffer = _device?.ResourceFactory.CreateBuffer(indexCpuBuffer.Describe());
+            
             if (indexBuffer is not null)
             {
                 _device?.UpdateBuffer(indexBuffer, indexCpuBuffer.GetByteOffset(0), indexCpuBuffer.BufferData);
                 commands?.SetIndexBuffer(indexBuffer, IndexFormat.UInt32);
             }
 
-
             commands?.SetFramebuffer(fbo!);
             commands?.ClearColorTarget(0, RgbaFloat.White);
 
-            foreach (HTMLElement element in _htmlDoc)
+            lock (_lock)
             {
-                element.Draw();
+                if (!_wait && _htmlDoc.Root is not null)
+                {
+                    foreach (HTMLElement element in _htmlDoc)
+                    {
+                        element.Draw();
+                    }
+                }
             }
 
             commands?.End();
