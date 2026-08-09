@@ -17,15 +17,15 @@ namespace Rogue.Graphics.Text
 {
     public static class CharacterLoader
     {
-        private static readonly Dictionary<Font, Texture> s_charAtlases = [];
+        private static readonly Dictionary<Font, CharacterAtlas> s_charAtlases = [];
 
         private static readonly Rune[] s_asciiRange = Enumerable.Range(char.MinValue, char.MaxValue).Where(c => !char.IsControl((char)c) && char.IsAscii((char) c) && !char.IsWhiteSpace((char) c)).Select(c => new Rune(c)).ToArray();
 
-        public static Texture LoadDefaultFont() => CharacterLoader.LoadAsciiFromFont(TextRenderer.DefaultFontOptions.Font);
+        public static CharacterAtlas LoadDefaultFont() => CharacterLoader.LoadAsciiFromFont(TextRenderer.DefaultFontOptions.Font);
 
-        public static Texture LoadAsciiFromFont(Font targetFont)
+        public static CharacterAtlas LoadAsciiFromFont(Font targetFont)
         {
-            if (s_charAtlases.TryGetValue(targetFont, out Texture? texture))
+            if (s_charAtlases.TryGetValue(targetFont, out CharacterAtlas? texture))
             {
                 return texture;
             }
@@ -62,14 +62,41 @@ namespace Rogue.Graphics.Text
             }
 
             Texture atlas = new ImageSharpTexture(atlasImage, false).CreateDeviceTexture(device, device.ResourceFactory);
-
             atlas.Name = targetFont.Name;
-            
-            s_charAtlases[targetFont] = atlas;
 
-            return atlas;
+            CharacterAtlas characterAtlasInstance = new (atlas, targetFont);
+            characterAtlasInstance.AddExistingRunes(s_asciiRange);
+            
+            s_charAtlases[targetFont] = characterAtlasInstance;
+
+            return characterAtlasInstance;
         }
 
-        public static int LookupRune(Rune rune) => s_asciiRange.IndexOf(rune);
+        public static void AddCharacter(CharacterAtlas atlas, Rune rune)
+        {
+            GraphicsDevice device = OpenGLResources.Device ?? throw new Exception("No GraphicsDevice found");
+            Texture target = atlas.Texture.Target;
+
+            atlas.AddExistingRunes(rune);
+
+            int newX = Convert.ToInt32(TextRenderer.Dimension + target.Width);
+
+            MappedResource mappedImage = device.Map(target, MapMode.Read);
+
+            Image<Rgba32> atlasImage = Image.LoadPixelData<Rgba32>(mappedImage.AsBytes(), (int) target.Width, (int) target.Height);
+
+            Bitmap<float> charBitMap = TextRenderer.RenderCharacter(rune, new TextOptions(atlas.AtlasFont));
+            Image<Rgba32> charImage = BitmapImage.GenerateImage(charBitMap);
+
+            atlasImage.Mutate(atlas =>
+            {
+                atlas.Resize(newX, TextRenderer.Dimension);
+                atlas.DrawImage(charImage, new Point(charImage.Width, 0), 0);
+            });
+
+            Texture newAtlasTexture = new ImageSharpTexture(atlasImage, false).CreateDeviceTexture(device, device.ResourceFactory);
+
+            atlas.Texture = device.ResourceFactory.CreateTextureView(newAtlasTexture);
+        }
     }
 }
