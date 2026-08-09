@@ -85,12 +85,6 @@ namespace Rogue.Graphics
             return _device.ResourceFactory.CreateGraphicsPipeline(pipeline);
         }
 
-        public static void InitFrame(CommandList commands)
-        {
-            commands.SetFramebuffer(OpenGLResources.Device?.SwapchainFramebuffer ?? throw new Exception("No SwapChain found"));
-            commands.ClearColorTarget(0, RgbaFloat.White);
-        }
-
         public void DrawElement()
         {
             this.Commands.SetPipeline(this.SetupPipeline());
