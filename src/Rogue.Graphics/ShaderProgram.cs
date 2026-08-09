@@ -10,6 +10,10 @@ namespace Rogue.Graphics
 
         public Shader FragShader { get; }
 
+        public const string CoordinateName = "coords";
+
+        public const string TextureCoordName = "texCoords";
+
         private const string _entryPoint = "main";
 
         public ShaderProgram(string vertexCode, string fragmentCode, ResourceFactory factory)
