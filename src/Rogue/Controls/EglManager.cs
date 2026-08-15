@@ -36,6 +36,8 @@ namespace Rogue.Controls
 
             _context = _display.CreateContext(null);
             _surface = new (_display, _context.OffscreenSurface?.DangerousGetHandle() ?? throw new Exception("Cannot get EGLSurface handle"));
+
+            this.SetContext(_context.Context);
         }
 
         private static string GetLibraryPath()
