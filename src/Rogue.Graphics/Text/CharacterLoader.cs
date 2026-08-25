@@ -17,11 +17,13 @@ namespace Rogue.Graphics.Text
 {
     public static class CharacterLoader
     {
+        public static readonly TextOptions DefaultFontOptions = CharacterLoader.GetDefaults();
+
         private static readonly Dictionary<Font, CharacterAtlas> s_charAtlases = [];
 
         private static readonly Rune[] s_asciiRange = Enumerable.Range(char.MinValue, char.MaxValue).Where(c => !char.IsControl((char)c) && char.IsAscii((char) c) && !char.IsWhiteSpace((char) c)).Select(c => new Rune(c)).ToArray();
 
-        public static CharacterAtlas LoadDefaultFont() => CharacterLoader.LoadAsciiFromFont(TextRenderer.DefaultFontOptions.Font);
+        public static CharacterAtlas LoadDefaultFont() => CharacterLoader.LoadAsciiFromFont(CharacterLoader.DefaultFontOptions.Font);
 
         public static CharacterAtlas LoadAsciiFromFont(Font targetFont)
         {
@@ -97,6 +99,17 @@ namespace Rogue.Graphics.Text
             Texture newAtlasTexture = new ImageSharpTexture(atlasImage, false).CreateDeviceTexture(device, device.ResourceFactory);
 
             atlas.Texture = device.ResourceFactory.CreateTextureView(newAtlasTexture);
+        }
+
+        private static TextOptions GetDefaults()
+        {
+            FontCollection collection = new ();
+            collection.AddSystemFonts();
+
+            FontFamily defaultFamily = collection.Families.First();
+            Font font = defaultFamily.CreateFont(24);
+
+            return new TextOptions(font);
         }
     }
 }

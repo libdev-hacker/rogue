@@ -13,8 +13,6 @@ namespace Rogue.Graphics.Text
     {
         public const int Dimension = 32;
 
-        public static readonly TextOptions DefaultFontOptions = TextRenderer.GetDefaults();
-
         public static Bitmap<float> RenderCharacter(Rune symbol, TextOptions opts)
         {
             TextRenderer renderer = new ();
@@ -31,17 +29,6 @@ namespace Rogue.Graphics.Text
             );
 
             return output;
-        }
-
-        private static TextOptions GetDefaults()
-        {
-            FontCollection collection = new ();
-            collection.AddSystemFonts();
-
-            FontFamily defaultFamily = collection.Families.First();
-            Font font = defaultFamily.CreateFont(24);
-
-            return new TextOptions(font);
         }
 
         private static Projection GetProjection(Shape glyph)
