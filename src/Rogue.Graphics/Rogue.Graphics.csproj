@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="MSDF-Sharp.Core" Version="1.0.2" />
-    <PackageReference Include="OpenTK" Version="4.9.4" />
+    <PackageReference Include="OpenTK.Mathematics" Version="4.9.4" />
     <PackageReference Include="SixLabors.Fonts" Version="3.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="4.0.0" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="3.0.0" />
