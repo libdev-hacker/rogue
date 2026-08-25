@@ -31,7 +31,7 @@ namespace Rogue.HTML
                             switch (reader.NodeType)
                             {
                                 case XmlNodeType.Element:
-                                    document.ParseElement(reader, current);
+                                    document.ParseElement(reader, ref current);
                                     break;
                                 case XmlNodeType.Text:
                                     current.AddText(reader.Value);
@@ -87,25 +87,22 @@ namespace Rogue.HTML
             return foundElements;
         }
 
-        internal void ParseElement(XmlTextReader reader, HTMLElement current)
+        internal void ParseElement(XmlTextReader reader, ref HTMLElement current)
         {
-            if (reader is not null)
-            {
-                string name = reader.Name;
-                HTMLElement element = GetElementType(name);
-                element.PopulateAttributes(reader);
-                element.TagName = name;
+            string name = reader.Name;
+            HTMLElement element = GetElementType(name);
+            element.PopulateAttributes(reader);
+            element.TagName = name;
 
-                if (current.TagName == "")
-                {
-                    current = element;
-                    this.Root ??= current;
-                } else
-                {
-                    current.AddChild(element);
-                    element.Parent = current;
-                    if (element.HasEndTag) current = element;
-                }
+            if (current.TagName == "")
+            {
+                current = element;
+                this.Root ??= current;
+            } else
+            {
+                current.AddChild(element);
+                element.Parent = current;
+                if (element.HasEndTag) current = element;
             }
         }
 
