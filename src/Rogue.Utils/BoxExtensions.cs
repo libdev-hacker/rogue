@@ -4,28 +4,42 @@ namespace Rogue.Utils
 {
     public static class BoxExtensions
     {
-        public static float[] GetCoords(this Box2i box, float depth)
+
+        extension (Box2i box)
         {
-            Vector2i size = box.Size;
-            Vector2 midPoint = box.Center;
-            
-            const ushort components = 3; // XYZ
-            const ushort vertices = 4; // # of vertices
-            Span<float> coords = stackalloc float[components * vertices];
-
-            for (ushort i = 0; i < vertices; i++)
+            public float[] GetCoords(float depth, bool hasTexture = false)
             {
-                int xModifier = i < 2 ? 1 : -1;
-                int yModifier = i == 0 || i == 3 ? 1 : -1;
+                Vector2i size = box.Size;
+                Vector2 midPoint = box.Center;
+                
+                int components = hasTexture ? 5 : 3; // XYZ or XYZ + UV
+                const int vertices = 4; // # of vertices
+                Span<float> coords = stackalloc float[components * vertices];
 
-                int counter = 0;
+                for (ushort i = 0; i < vertices; i++)
+                {
+                    float xModifier = i < 2 ? 1.0f : -1.0f;
+                    float yModifier = i == 0 || i == 3 ? 1.0f : -1.0f;
 
-                coords[3*i + (counter++ % components)] = midPoint.X + (xModifier * size.X / 2); // X-coordinate
-                coords[3*i + (counter++ % components)] = midPoint.Y + (yModifier * size.Y / 2); // Y-coordinate
-                coords[3*i + (counter++ % components)] = depth; // Z-coordinate
+                    float u = i < 2 ? 1.0f : 0.0f;
+                    float v = i == 0 || i == 3 ? 1.0f : 0.0f;
+
+                    int counter = 0;
+
+                    coords[components*i + (counter++ % components)] = midPoint.X + (xModifier * size.X / 2); // X-coordinate
+                    coords[components*i + (counter++ % components)] = midPoint.Y + (yModifier * size.Y / 2); // Y-coordinate
+                    coords[components*i + (counter++ % components)] = depth; // Z-coordinate
+
+                    if (hasTexture)
+                    {
+                        coords[components*i + (counter++ % components)] = u; // U component
+                        coords[components*i + (counter++ % components)] = v; // V component
+                    }
+                }
+
+                return coords.ToArray();
             }
-
-            return coords.ToArray();
+            
         }
     }
 }
