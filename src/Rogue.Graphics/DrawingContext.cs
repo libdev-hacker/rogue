@@ -128,6 +128,15 @@ namespace Rogue.Graphics
             return _device.ResourceFactory.CreateGraphicsPipeline(pipeline);
         }
 
+        private void SetIndices()
+        {
+            GraphicsBuffer<uint> indexCpuBuffer = GraphicsBuffer.Indices;
+            DeviceBuffer indexBuffer = _device.ResourceFactory.CreateBuffer(indexCpuBuffer.Describe());
+
+            _device.UpdateBuffer(indexBuffer, indexCpuBuffer.GetByteOffset(0), indexCpuBuffer.BufferData);
+            this.Commands.SetIndexBuffer(indexBuffer, IndexFormat.UInt32);
+        }
+
         public void DrawElement()
         {
             if (this.VertexBuffer is not null)
