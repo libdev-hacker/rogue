@@ -1,10 +1,11 @@
-using OpenTK.Mathematics;
-
 using Rogue.Graphics.Backends;
 using Rogue.HTML;
 using Rogue.JS;
 using Rogue.JS.DOM;
 using Rogue.Utils;
+using Rogue.Utils.Maths;
+
+using System.Numerics;
 
 using Veldrid;
 
@@ -90,7 +91,7 @@ namespace Rogue.Manager
             _device?.WaitForIdle();
         }
 
-        public void RegisterClick(Vector2i clickPoint)
+        public void RegisterClick(Vector2 clickPoint)
         {
             foreach (HTMLElement element in _htmlDoc)
             {

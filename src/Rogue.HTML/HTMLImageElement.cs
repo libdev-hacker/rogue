@@ -2,8 +2,6 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 
-using OpenTK.Mathematics;
-
 using Rogue.Graphics;
 using Rogue.Utils;
 

@@ -1,24 +1,24 @@
-using System.Diagnostics.CodeAnalysis;
 
-using OpenTK.Mathematics;
-using OpenTK.Graphics.OpenGL4;
+using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 
 using Rogue.Graphics;
 using Rogue.JS;
+using Rogue.Utils.Maths;
 
 namespace Rogue.HTML
 {
     public class HTMLElement
     {
-        public Vector2i Dimensions { get; set; }
+        public Vector2 Dimensions { get; set; }
 
-        public Vector2i Location { get
+        public Vector2 Location { get
             {
                 if (this.Parent is not null)
                 {
                     return new (this.Parent.Location.X, this.Parent.Location.Y + this.Parent.Dimensions.Y);
                 }
-                return Vector2i.Zero;
+                return Vector2.Zero;
             }
         }
 
@@ -37,19 +37,9 @@ namespace Rogue.HTML
 
         protected float Depth;
 
-        protected Box2i Container { get => new (this.Location.X, this.Location.Y+this.Dimensions.Y, this.Location.X+this.Dimensions.X, this.Location.Y); }
+        protected BoxContainer Container => new (this.Location.X, this.Location.Y+this.Dimensions.Y, this.Location.X+this.Dimensions.X, this.Location.Y);
 
         protected DrawingContext Renderer = new ();
-
-        public HTMLElement()
-        {
-            this.Dimensions = Vector2i.Zero;
-        }
-
-        public HTMLElement(int width, int height, int x, int y)
-        {
-            this.Dimensions = new (width, height);
-        }
 
         public virtual void Draw()
         {
@@ -59,7 +49,7 @@ namespace Rogue.HTML
 
         public virtual void Click(JsEngine? engine = null) {  }
 
-        public bool IsPointWithin(Vector2i point) => this.Container.ContainsInclusive(point);
+        public bool IsPointWithin(Vector2 point) => this.Container.IsPointWithin(point);
 
         public void AddChild(HTMLElement childNode)
         {
