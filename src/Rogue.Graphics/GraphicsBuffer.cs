@@ -1,4 +1,6 @@
 
+using System.Runtime.InteropServices;
+
 using Veldrid;
 
 namespace Rogue.Graphics
@@ -20,7 +22,7 @@ namespace Rogue.Graphics
 
         public readonly BufferUsage Type { get; } = type;
 
-        private unsafe readonly uint _size = Convert.ToUInt32(sizeof(T) * data.Length);
+        private readonly uint _size = Convert.ToUInt32(Marshal.SizeOf<T>() * data.Length);
 
         public BufferDescription Describe() => new (
             _size,
