@@ -41,10 +41,11 @@ namespace Rogue.Graphics.Text
 
             for (int i = 0; i < s_asciiRange.Length; i++)
             {
+                int index = i;
                 tasks.Add(Task.Run(() =>
                 {
-                    Bitmap<float> bitmap = TextRenderer.RenderCharacter(s_asciiRange[i], new TextOptions(targetFont));
-                    charTextures[i] = BitmapImage.GenerateImage(bitmap);
+                    Bitmap<float> bitmap = TextRenderer.RenderCharacter(s_asciiRange[index], new TextOptions(targetFont));
+                    charTextures[index] = BitmapImage.GenerateImage(bitmap);
                 }));
             }
 
@@ -53,13 +54,20 @@ namespace Rogue.Graphics.Text
             try
             {
                 t.Wait();
-            } catch {}
+            } catch (AggregateException @event)
+            {
+                @event.Handle((e) =>
+                {
+                    Console.Error.WriteLine($"{nameof(e)}: {e}");
+                    return true;
+                });
+            }
 
             if (t.Status == TaskStatus.RanToCompletion)
             {
                 for (int i = 0; i < s_asciiRange.Length; i++)
                 {
-                    atlasImage.Mutate(atlas => atlas.DrawImage(charTextures[i], new Point(TextRenderer.Dimension * i, 0), 0));
+                    atlasImage.Mutate(atlas => atlas.DrawImage(charTextures[i], new Point(TextRenderer.Dimension * i, 0), 1));
                 }
             }
 
