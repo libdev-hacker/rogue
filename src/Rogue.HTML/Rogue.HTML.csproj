@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp" Version="4.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="../Rogue.Graphics/Rogue.Graphics.csproj" />
     <ProjectReference Include="../Rogue.JS/Rogue.JS.csproj" />
     <ProjectReference Include="../Rogue.Utils/Rogue.Utils.csproj" />
