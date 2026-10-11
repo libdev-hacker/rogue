@@ -19,13 +19,17 @@ namespace Rogue.Controls
 
         private EglContext _context;
 
-        private EglSurface _surface;
+        private EglSurface? _surface;
 
         private bool _disposed;
 
         public EglManager()
         {
+#if DEBUG
+            _interface = new ();
+#else
             _interface = new (EglManager.GetLibraryPath());
+#endif
 
             GlVersion[] openglVersion = [new (GlProfileType.OpenGL, 4, 3, true)]; // Targetting OpenGL 4.3
             _display = new (new EglDisplayCreationOptions()
@@ -35,7 +39,14 @@ namespace Rogue.Controls
             });
 
             _context = _display.CreateContext(null);
-            _surface = new (_display, _context.OffscreenSurface?.DangerousGetHandle() ?? throw new Exception("Cannot get EGLSurface handle"));
+#if DEBUG
+            int[] attributes = [EglConsts.EGL_WIDTH, 1, EglConsts.EGL_HEIGHT, 1, EglConsts.EGL_NONE];
+            nint pBuffer = _interface.CreatePBufferSurface(_display.Handle, _display.Config, attributes);
+            if (pBuffer == nint.Zero) throw new Exception("EGL pbuffer not initialised");
+            _surface = new (_display, pBuffer);
+#else
+            _surface = new (_display, _context.OffscreenSurface.DangerousGetHandle());
+#endif
 
             this.SetContext(_context.Context);
         }
@@ -73,7 +84,7 @@ namespace Rogue.Controls
             _interface.GetCurrentContext,
             () => this.SetContext(nint.Zero),
             (context) => _interface.DestroyContext(_display.Handle, context),
-            _surface.SwapBuffers,
+            this.SwapBuffers,
             this.SwapInterval
         );
 
@@ -100,10 +111,10 @@ namespace Rogue.Controls
         private void SetContext(nint context)
         {
             nint currentDisplay = _display.Handle;
-            nint currentSurface = _surface.DangerousGetHandle();
+            nint currentSurface = _surface?.DangerousGetHandle() ?? nint.Zero;
             if (context == nint.Zero)
             {
-                _interface.MakeCurrent(currentDisplay, context, context, context);
+                _interface.MakeCurrent(currentDisplay, nint.Zero, nint.Zero, context);
             } else
             {
                 _interface.MakeCurrent(currentDisplay, currentSurface, currentSurface, context);
@@ -114,6 +125,17 @@ namespace Rogue.Controls
         {
             nint currentDisplay = _display.Handle;
             _interface.SwapInterval(currentDisplay, shouldSync ? 1 : 0);
+        }
+
+        private void SwapBuffers()
+        {
+            if (_surface is not null)
+            {
+                _surface.SwapBuffers();
+            } else
+            {
+                _interface.SwapBuffers(_display.Handle, 0);
+            }
         }
     }
 }
