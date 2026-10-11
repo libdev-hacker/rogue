@@ -87,7 +87,7 @@ namespace Rogue.Graphics.Text
             if (atlas.LookupRune(rune) >= 0) return;
 
             GraphicsDevice device = OpenGLResources.Device ?? throw new Exception("No GraphicsDevice found");
-            Texture target = atlas.Texture.Target;
+            Texture target = atlas.Texture;
 
             atlas.AddExistingRunes(rune);
 
@@ -108,7 +108,7 @@ namespace Rogue.Graphics.Text
 
             Texture newAtlasTexture = new ImageSharpTexture(atlasImage, false).CreateDeviceTexture(device, device.ResourceFactory);
 
-            atlas.Texture = device.ResourceFactory.CreateTextureView(newAtlasTexture);
+            atlas.Texture = newAtlasTexture;
         }
 
         private static TextOptions GetDefaults()
