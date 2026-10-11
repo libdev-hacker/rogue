@@ -8,7 +8,10 @@ namespace Rogue
         {
             Window window = args.Length == 0 ? new (600, 800) : new (600, 800, args[0]);
 
-            AppBuilder.Configure<Application>().UsePlatformDetect().Start(window.Init, args);
+            AppBuilder.Configure<Application>()
+            .UsePlatformDetect()
+            .UseWaylandWithFallback()
+            .Start(window.Init, args);
         }
     }
 }
