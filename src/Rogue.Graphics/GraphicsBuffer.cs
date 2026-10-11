@@ -30,5 +30,12 @@ namespace Rogue.Graphics
         );
 
         public uint GetByteOffset(int index) => Convert.ToUInt32(_size * (Convert.ToSingle(index) / this.BufferData.Length));
+
+        public DeviceBuffer UploadBuffer(GraphicsDevice gd, int index = 0)
+        {
+            DeviceBuffer gpuBuffer = gd.ResourceFactory.CreateBuffer(this.Describe());
+            gd.UpdateBuffer(gpuBuffer, this.GetByteOffset(index), this.BufferData);
+            return gpuBuffer;
+        }
     }
 }
