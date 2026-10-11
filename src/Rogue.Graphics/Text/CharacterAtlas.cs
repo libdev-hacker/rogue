@@ -35,6 +35,10 @@ namespace Rogue.Graphics.Text
             return TextRenderer.Dimension * index / this.Texture.Target.Width;
         }
 
-        internal void AddExistingRunes(params Rune[] runes) => _runes.AddRange(runes);
+        internal void AddExistingRunes(params Rune[] runes)
+        {
+            _runes.AddRange(runes);
+            _runes.Sort((x, y) => x.CompareTo(y));
+        }
     }
 }
