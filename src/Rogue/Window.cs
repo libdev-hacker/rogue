@@ -43,21 +43,29 @@ namespace Rogue
 
         public void Init(Application app, string[] args)
         {
+            Panel windowPanel = new ()
+            {
+                Background = AvaloniaBrushes.White
+            };
+
+            Action renderWebPage = ((WebPage) _tabs.Current).RenderPage;
+
+            OpenGlCanvas canvas = new (_egl.GetOpenGLInfo(), renderWebPage);
+
+            windowPanel.Children.Add(canvas);
+
             WindowControl layout = new ()
             {
                 Title = _title,
                 Width = _dimensions.Width,
                 Height = _dimensions.Height,
                 Position = PixelPoint.Origin,
-                Content = new OpenGlCanvas()
-                {
-                    PlatformInfo = _egl.GetOpenGLInfo(),
-                    RenderProc = ((WebPage) _tabs.Current).RenderPage
-                }
+                Content = windowPanel
             };
 
             layout.Resized += this.OnResize;
 
+            renderWebPage.Invoke();
             layout.Show();
             app.Run(layout);
         }
