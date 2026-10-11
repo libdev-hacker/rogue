@@ -3,7 +3,6 @@ using Rogue.HTML;
 using Rogue.JS;
 using Rogue.JS.DOM;
 using Rogue.Utils;
-using Rogue.Utils.Maths;
 
 using System.Numerics;
 
@@ -31,6 +30,8 @@ namespace Rogue.Manager
 
         private GraphicsDevice? _device = OpenGLResources.Device;
 
+        private CommandList _commands;
+
         public WebPage(string url = "")
         {
             this.Url = url;
@@ -40,6 +41,8 @@ namespace Rogue.Manager
             {
                 URL = this.Url
             };
+
+            _commands = _device!.ResourceFactory.CreateCommandList();
             
             this.PrepareJsEngine();
         }
@@ -68,11 +71,11 @@ namespace Rogue.Manager
 
             Framebuffer? fbo = OpenGLResources.MainFrameBuffer;
 
-            using CommandList? commands = _device?.ResourceFactory.CreateCommandList();
-            commands?.Begin();
+            _commands.Begin();
 
-            commands?.SetFramebuffer(fbo!);
-            commands?.ClearColorTarget(0, RgbaFloat.White);
+            _commands.SetFramebuffer(fbo!);
+            _commands.SetFullViewports();
+            _commands.ClearColorTarget(0, RgbaFloat.White);
 
             lock (_lock)
             {
@@ -80,14 +83,14 @@ namespace Rogue.Manager
                 {
                     foreach (HTMLElement element in _htmlDoc)
                     {
-                        element.Draw();
+                        element.Draw(_commands);
                     }
                 }
             }
 
-            commands?.End();
+            _commands.End();
 
-            _device?.SubmitCommands(commands!);
+            _device?.SubmitCommands(_commands);
             _device?.WaitForIdle();
         }
 
