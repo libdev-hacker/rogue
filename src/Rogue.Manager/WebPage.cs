@@ -28,9 +28,9 @@ namespace Rogue.Manager
 
         private JsDocument _jsDocument;
 
-        private GraphicsDevice? _device = OpenGLResources.Device;
+        private GraphicsDevice? _device;
 
-        private CommandList _commands;
+        private CommandList? _commands;
 
         public WebPage(string url = "")
         {
@@ -42,13 +42,22 @@ namespace Rogue.Manager
                 URL = this.Url
             };
 
-            _commands = _device!.ResourceFactory.CreateCommandList();
-            
             this.PrepareJsEngine();
+        }
+
+        public void InitialiseGraphics()
+        {
+            if (GraphicsResources.Device is not null)
+            {
+                _device ??= GraphicsResources.Device;
+                _commands ??= _device!.ResourceFactory.CreateCommandList();
+            }
         }
 
         public void RenderPage()
         {
+            if (_device is null || _commands is null) return;
+
             string blankPagePath = Path.GetDirectoryName(Environment.ProcessPath) + "/blank.html";
             string url = _client.Uri.AbsoluteUri;
 
@@ -69,7 +78,7 @@ namespace Rogue.Manager
                 _isLoading = true;
             }
 
-            Framebuffer? fbo = OpenGLResources.MainFrameBuffer;
+            Framebuffer? fbo = _device.SwapchainFramebuffer;
 
             _commands.Begin();
 
@@ -90,8 +99,8 @@ namespace Rogue.Manager
 
             _commands.End();
 
-            _device?.SubmitCommands(_commands);
-            _device?.WaitForIdle();
+            // _device?.SubmitCommands(_commands);
+            // _device?.WaitForIdle();
         }
 
         public void RegisterClick(Vector2 clickPoint)

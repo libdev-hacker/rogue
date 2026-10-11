@@ -122,6 +122,17 @@ namespace Veldrid.Vulkan
             }
         }
 
+        public static IntPtr GetDeviceProcAddr(VkDevice device, string name)
+        {
+            Span<byte> buffer = stackalloc byte[1024];
+
+            Util.GetNullTerminatedUtf8(name, ref buffer);
+            fixed (byte* utf8Ptr = buffer)
+            {
+                return (IntPtr)vkGetDeviceProcAddr(device, (sbyte*) utf8Ptr);
+            }
+        }
+
         public static void TransitionImageLayout(
             VkCommandBuffer cb,
             VkImage image,

@@ -73,6 +73,7 @@ namespace Veldrid.Vulkan
         public string? DriverName => _driverName;
         public string? DriverInfo => _driverInfo;
         public VkDeviceMemoryManager MemoryManager => _memoryManager;
+        public VkPhysicalDeviceFeatures PhysicalDeviceFeatures => _physicalDeviceFeatures;
         public VkDescriptorPoolManager DescriptorPoolManager => _descriptorPoolManager;
         public vkCmdDebugMarkerBeginEXT_t? MarkerBegin => _markerBegin;
         public vkCmdDebugMarkerEndEXT_t? MarkerEnd => _markerEnd;

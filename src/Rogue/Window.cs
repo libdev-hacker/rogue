@@ -2,12 +2,15 @@ using Avalonia;
 using Avalonia.Controls;
 
 using Rogue.Controls;
+using Rogue.Graphics;
 using Rogue.Graphics.Backends;
 using Rogue.Manager;
 
 using Veldrid;
 
 using WindowControl = Avalonia.Controls.Window;
+using AvaloniaBrushes = Avalonia.Media.Brushes;
+using Avalonia.Interactivity;
 
 namespace Rogue
 {
@@ -23,8 +26,6 @@ namespace Rogue
 
         private WindowDimensions _dimensions;
 
-        private EglManager _egl = new ();
-
         private TabManager _tabs;
 
         public Window(uint width, uint height, string url = "")
@@ -35,7 +36,7 @@ namespace Rogue
                 Height = height
             };
 
-            this.InitialiseOpenGL();
+            // this.InitialiseOpenGL();
 
             _tabs = new ();
             _tabs.CreateTab(url, true);
@@ -48,9 +49,11 @@ namespace Rogue
                 Background = AvaloniaBrushes.White
             };
 
-            Action renderWebPage = ((WebPage) _tabs.Current).RenderPage;
+            WebPage currentPage = (WebPage) _tabs.Current;
+            Action renderWebPage = currentPage.RenderPage;
 
-            OpenGlCanvas canvas = new (_egl.GetOpenGLInfo(), renderWebPage);
+            // OpenGlCanvas canvas = new (_egl.GetOpenGLInfo(), renderWebPage);
+            RogueCanvas canvas = new (renderWebPage, GraphicsResources.Device);
 
             windowPanel.Children.Add(canvas);
 
@@ -64,16 +67,15 @@ namespace Rogue
             };
 
             layout.Resized += this.OnResize;
+            layout.Loaded += this.LoadGraphics;
 
-            renderWebPage.Invoke();
             layout.Show();
             app.Run(layout);
         }
 
-        private void InitialiseOpenGL()
+        private void LoadGraphics(object? sender, RoutedEventArgs args)
         {
-            uint width = _dimensions.Width;
-            uint height = _dimensions.Height;
+            if (sender is not WindowControl window) return;
 
             GraphicsDeviceOptions opts = new ()
             {
@@ -81,50 +83,69 @@ namespace Rogue
                 PreferDepthRangeZeroToOne = true,
                 Debug = true
             }; // Defaults taken from veldrid.dev tutorial
-
-            OpenGLResources.Device ??= GraphicsDevice.CreateOpenGL(opts, _egl.GetOpenGLInfo(), width, height);
-
-            Texture fboColourTarget = OpenGLResources.Device.ResourceFactory.CreateTexture(new TextureDescription(
-                width,
-                height,
-                1,
-                1,
-                1,
-                PixelFormat.R8_G8_B8_A8_UNorm,
-                TextureUsage.RenderTarget,
-                TextureType.Texture2D
-            ));
-
-            Texture fboDepthTarget = OpenGLResources.Device.ResourceFactory.CreateTexture(new TextureDescription(
-                width,
-                height,
-                1,
-                1,
-                1,
-                PixelFormat.D16_UNorm,
-                TextureUsage.DepthStencil,
-                TextureType.Texture2D
-            ));
-
-            if (OpenGLResources.MainFrameBuffer is not null && !OpenGLResources.MainFrameBuffer.IsDisposed)
+            
+            if (TopLevel.GetTopLevel(window)?.TryGetPlatformHandle() is {} handle)
             {
-                OpenGLResources.MainFrameBuffer.Dispose();
+                if (OperatingSystem.IsWindows())
+                {
+                    GraphicsResources.Device ??= GraphicsDevice.CreateD3D11(
+                        opts,
+                        handle.Handle,
+                        _dimensions.Width,
+                        _dimensions.Height
+                    );
+                } else if (OperatingSystem.IsLinux())
+                {
+                    if (handle.HandleDescriptor == "XID")
+                    {
+                        SwapchainDescription description = new (
+                            SwapchainSource.CreateXlib(
+                                X11Interop.XOpenDisplay(nint.Zero),
+                                handle.Handle
+                            ),
+                            _dimensions.Width,
+                            _dimensions.Height,
+                            PixelFormat.D24_UNorm_S8_UInt,
+                            true
+                        );
+
+                        GraphicsResources.Device ??= GraphicsDevice.CreateVulkan(
+                            opts,
+                            description
+                        );
+                    } // TODO: Add proper Wayland support
+                } else if (OperatingSystem.IsMacOS())
+                {
+                    GraphicsResources.Device ??= GraphicsDevice.CreateMetal(
+                        opts,
+                        handle.Handle
+                    );
+                } else
+                {
+                    throw new Exception("Unsupported platform!");
+                }
             }
 
-            OpenGLResources.MainFrameBuffer = OpenGLResources.Device.ResourceFactory.CreateFramebuffer(new FramebufferDescription(fboDepthTarget, fboColourTarget));
+            
+            WebPage currentPage = (WebPage) _tabs.Current;
+            currentPage.InitialiseGraphics();
+            currentPage.RenderPage();
         }
 
         private void OnResize(object? sender, WindowResizedEventArgs args)
         {
-            _dimensions = new ()
-            {
-                Width = Convert.ToUInt32(args.ClientSize.Width),
-                Height = Convert.ToUInt32(args.ClientSize.Height)
-            };
+            _dimensions.Width = Convert.ToUInt32(args.ClientSize.Width);
+            _dimensions.Height = Convert.ToUInt32(args.ClientSize.Height);
 
-            OpenGLResources.Device?.ResizeMainWindow(_dimensions.Width, _dimensions.Height);
+            DrawingContext.SetOrthogonalMatrix(_dimensions.Width, _dimensions.Height);
 
-            this.InitialiseOpenGL(); // Recreates framebuffers
+            GraphicsResources.Device?.ResizeMainWindow(_dimensions.Width, _dimensions.Height);
         }
+    }
+
+    static partial class X11Interop
+    {
+        [System.Runtime.InteropServices.LibraryImport("libX11.so.6")]
+        public static partial nint XOpenDisplay(nint display);
     }
 }

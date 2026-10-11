@@ -1,6 +1,7 @@
 ﻿#if !EXCLUDE_VULKAN_BACKEND
 using System;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 using TerraFX.Interop.Vulkan;
 using Veldrid.Vulkan;
 
@@ -26,6 +27,18 @@ namespace Veldrid
             _deviceExtensions = new Lazy<ReadOnlyCollection<ExtensionProperties>>(EnumerateDeviceExtensions);
         }
 
+        ///<summary>
+        /// Gets the function that resolves Vulkan functions for the current
+        /// VkInstance
+        ///</summary>
+        public Func<string, IntPtr> InstanceProcAddr => (funcName) => VulkanUtil.GetInstanceProcAddr(_gd.Instance, funcName);
+
+        ///<summary>
+        /// Gets the function that resolves Vulkan functions for the current
+        /// VkDevice
+        ///</summary>
+        public Func<string, IntPtr> DeviceProcAddr => (funcName) => VulkanUtil.GetDeviceProcAddr(_gd.Device, funcName);
+
         /// <summary>
         /// Gets the underlying VkInstance used by the GraphicsDevice.
         /// </summary>
@@ -40,6 +53,11 @@ namespace Veldrid
         /// Gets the underlying VkPhysicalDevice used by the GraphicsDevice.
         /// </summary>
         public IntPtr PhysicalDevice => (IntPtr)_gd.PhysicalDevice.Value;
+
+        /// <summary>
+        /// Gets the underlying VkPhysicalDevice used by the GraphicsDevice.
+        /// </summary>
+        public unsafe IntPtr PhysicalDeviceFeatures => GetStructPtr(_gd.PhysicalDeviceFeatures);
 
         /// <summary>
         /// Gets the VkQueue which is used by the GraphicsDevice to submit graphics work.
@@ -83,6 +101,12 @@ namespace Veldrid
                     vkTex.SetImageLayout(level, layer, (VkImageLayout)layout);
                 }
             }
+        }
+
+        public VkImageLayout GetImageLayout(Texture texture)
+        {
+            VkTexture vkTex = Util.AssertSubtype<Texture, VkTexture>(texture);
+            return vkTex.GetImageLayout(0, 0);
         }
 
         /// <summary>
@@ -131,6 +155,17 @@ namespace Veldrid
             return vkTexture.VkFormat;
         }
 
+        public MemoryInfo GetImageMemoryInfo(Texture texture)
+        {
+            VkTexture vkTexture = Util.AssertSubtype<Texture, VkTexture>(texture);
+            return new MemoryInfo(
+                (IntPtr) vkTexture.Memory.BaseMappedPointer,
+                vkTexture.Memory.DeviceMemory.Value,
+                vkTexture.Memory.Offset,
+                vkTexture.Memory.Size
+            );
+        }
+
         private unsafe ReadOnlyCollection<ExtensionProperties> EnumerateDeviceExtensions()
         {
             VkExtensionProperties[] vkProps = _gd.GetDeviceExtensionProperties();
@@ -143,6 +178,13 @@ namespace Veldrid
             }
 
             return new ReadOnlyCollection<ExtensionProperties>(veldridProps);
+        }
+
+        private unsafe IntPtr GetStructPtr<T>(T structure) where T: unmanaged
+        {
+            IntPtr allocMem = Marshal.AllocHGlobal(sizeof(T));
+            Marshal.StructureToPtr(structure, allocMem, true);
+            return allocMem;
         }
 
         public readonly struct ExtensionProperties
@@ -159,6 +201,27 @@ namespace Veldrid
             public override string ToString()
             {
                 return Name;
+            }
+        }
+
+        public readonly struct MemoryInfo
+        {
+            public readonly IntPtr MemoryBuffer;
+            public readonly ulong MemoryHandle;
+            public readonly ulong Offset;
+            public readonly ulong Size;
+
+            internal MemoryInfo(
+                IntPtr buffer,
+                ulong handle,
+                ulong offset,
+                ulong size
+            )
+            {
+                MemoryBuffer = buffer;
+                MemoryHandle = handle;
+                Offset = offset;
+                Size = size;
             }
         }
     }
