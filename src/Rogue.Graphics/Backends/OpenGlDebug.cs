@@ -16,20 +16,18 @@ namespace Rogue.Graphics.Backends
         )
         {
             string errorMessage = Marshal.PtrToStringAnsi((nint) message, (int) messageLength);
-            if (level != (uint) DebugSeverity.DebugSeverityNotification)
+            ConsoleColor textColour = (DebugSeverity) level switch
             {
-                ConsoleColor textColour = (DebugSeverity) level switch
-                {
-                    DebugSeverity.DebugSeverityLow => ConsoleColor.White,
-                    DebugSeverity.DebugSeverityMedium => ConsoleColor.Yellow,
-                    DebugSeverity.DebugSeverityHigh => ConsoleColor.Red,
-                    _ => ConsoleColor.White
-                };
+                DebugSeverity.DebugSeverityLow => ConsoleColor.Green,
+                DebugSeverity.DebugSeverityMedium => ConsoleColor.Yellow,
+                DebugSeverity.DebugSeverityHigh => ConsoleColor.Red,
+                DebugSeverity.DebugSeverityNotification => ConsoleColor.White,
+                _ => ConsoleColor.Magenta
+            };
 
-                errorMessage = $"OpenGl Message: source={(DebugSource) source}, type={(DebugType) type}, message={errorMessage}";
-                
-                OpenGlDebug.PrintMessage(textColour, errorMessage);
-            }
+            errorMessage = $"OpenGl Message: source={(DebugSource) source}, type={(DebugType) type}, message={errorMessage}";
+            
+            OpenGlDebug.PrintMessage(textColour, errorMessage);
         }
 
         private static void PrintMessage(ConsoleColor colour, string message)
