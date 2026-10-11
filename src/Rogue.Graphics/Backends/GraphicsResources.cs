@@ -3,11 +3,9 @@ using Veldrid;
 
 namespace Rogue.Graphics.Backends
 {
-    public static class OpenGLResources
+    public static class GraphicsResources
     {
         public static GraphicsDevice? Device { get; set; }
-
-        public static Framebuffer? MainFrameBuffer { get; set; }
 
         internal static GraphicsPipelineDescription CreatePipeline() => new ()
         {
@@ -20,7 +18,7 @@ namespace Rogue.Graphics.Backends
             RasterizerState = new (
                 FaceCullMode.Back,
                 PolygonFillMode.Solid,
-                FrontFace.CounterClockwise, // OpenGL uses Counter-Clockwise by default
+                FrontFace.CounterClockwise,
                 false,
                 false
             ),
