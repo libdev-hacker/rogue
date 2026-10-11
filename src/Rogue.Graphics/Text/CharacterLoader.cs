@@ -84,6 +84,8 @@ namespace Rogue.Graphics.Text
 
         public static void AddCharacter(CharacterAtlas atlas, Rune rune)
         {
+            if (atlas.LookupRune(rune) >= 0) return;
+
             GraphicsDevice device = OpenGLResources.Device ?? throw new Exception("No GraphicsDevice found");
             Texture target = atlas.Texture.Target;
 
